@@ -1,9 +1,23 @@
 <resources>
-    <string name="app_name">CAPEventPlanner</string>
+    <string name="app_name">CAP Event Planner</string>
 
-    <string name="title_section1">Section 1</string>
-    <string name="title_section2">Section 2</string>
-    <string name="title_section3">Section 3</string>
+    <string name="title_section1">Upcoming Events</string>
+    <string name="title_section2">Approve Events</string>
+    <string name="title_section3">Create Events</string>
+    <string name="title_section4">Settings</string>
+
+    <string name="event_name_hint">Event name goes here...</string>
+    <string name="event_date_hint">Use mm/dd/yyyy format...</string>
+    <string name="event_location_hint">Address on first line and optional
+        venue name on second line...</string>
+    <string name="event_description_hint">Additional details for event
+        go here...</string>
+    <string name="event_price_hint">Enter the price before subsidy and do
+        not use $...</string>
+
+    <string name="save_event_button">Save</string>
+    <string name="cancel_event_button">Cancel</string>
+
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
