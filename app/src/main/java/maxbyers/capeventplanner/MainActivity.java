@@ -5,9 +5,12 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.ListFragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -16,7 +19,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
@@ -66,6 +72,9 @@ public class MainActivity extends Activity
             case 3:
                 mTitle = getString(R.string.title_section3);
                 break;
+            case 4:
+                mTitle = getString(R.string.title_section4);
+                break;
         }
     }
 
@@ -108,12 +117,17 @@ public class MainActivity extends Activity
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment {
+    public static class PlaceholderFragment extends Fragment implements View.OnClickListener {
         /**
          * The fragment argument representing the section number for this
          * fragment.
          */
         private static final String ARG_SECTION_NUMBER = "section_number";
+
+        /**
+         * Initialize all global variables.
+         */
+        EditText create_event_name;
 
         /**
          * Returns a new instance of this fragment for the given section
@@ -133,8 +147,27 @@ public class MainActivity extends Activity
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            return rootView;
+            if (this.getArguments().getInt(ARG_SECTION_NUMBER) == 1) {
+                View rootView = inflater.inflate(R.layout.fragment_upcoming_events, container, false);
+                return rootView;
+            } else if (this.getArguments().getInt(ARG_SECTION_NUMBER) == 2) {
+                View rootView = inflater.inflate(R.layout.fragment_approve_event, container, false);
+                return rootView;
+            } else if (this.getArguments().getInt(ARG_SECTION_NUMBER) == 3) {
+                View rootView = inflater.inflate(R.layout.fragment_create_event, container, false);
+
+                // Button portion of this fragment.
+                Button testButton = (Button) rootView.findViewById(R.id.save_button);
+                testButton.setOnClickListener(this);
+
+                return rootView;
+            } else if (this.getArguments().getInt(ARG_SECTION_NUMBER) == 4) {
+                View rootView = inflater.inflate(R.layout.fragment_settings, container, false);
+                return rootView;
+            } else {
+                View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+                return rootView;
+            }
         }
 
         @Override
@@ -143,6 +176,10 @@ public class MainActivity extends Activity
             ((MainActivity) activity).onSectionAttached(
                     getArguments().getInt(ARG_SECTION_NUMBER));
         }
-    }
 
+        @Override
+        public void onClick(View v) {
+            create_event_name = (EditText) v.findViewById(R.id.event_name_edittext);
+        }
+    }
 }
