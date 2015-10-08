@@ -182,9 +182,6 @@ public class MainActivity extends Activity
                         create_event_price.setText("");
                     }
                 });
-
-
-
                 return rootView;
             } else if (this.getArguments().getInt(ARG_SECTION_NUMBER) == 4) {
                 View rootView = inflater.inflate(R.layout.fragment_settings, container, false);
