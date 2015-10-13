@@ -24,6 +24,8 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.client.Firebase;
+
 public class MainActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
@@ -50,6 +52,8 @@ public class MainActivity extends Activity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+
+        Firebase.setAndroidContext(this);
     }
 
     @Override
@@ -128,6 +132,10 @@ public class MainActivity extends Activity
          * Initialize all global variables.
          */
         EditText create_event_name;
+        EditText create_event_date;
+        EditText create_event_description;
+        EditText create_event_location;
+        EditText create_event_price;
 
         /**
          * Returns a new instance of this fragment for the given section
@@ -154,12 +162,30 @@ public class MainActivity extends Activity
                 View rootView = inflater.inflate(R.layout.fragment_approve_event, container, false);
                 return rootView;
             } else if (this.getArguments().getInt(ARG_SECTION_NUMBER) == 3) {
-                View rootView = inflater.inflate(R.layout.fragment_create_event, container, false);
+                final View rootView = inflater.inflate(R.layout.fragment_create_event, container, false);
 
                 // Button portion of this fragment.
-                Button testButton = (Button) rootView.findViewById(R.id.save_button);
-                testButton.setOnClickListener(this);
+                Button cancelButton = (Button) rootView.findViewById(R.id.cancel_button);
+                cancelButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // Remove any text from the text boxes.
+                        create_event_name = (EditText) rootView.findViewById(R.id.event_name_edittext);
+                        create_event_name.setText("");
 
+                        create_event_date = (EditText) rootView.findViewById(R.id.event_date_edittext);
+                        create_event_date.setText("");
+
+                        create_event_location = (EditText) rootView.findViewById(R.id.event_location_edittext);
+                        create_event_location.setText("");
+
+                        create_event_description = (EditText) rootView.findViewById(R.id.event_description_edittext);
+                        create_event_description.setText("");
+
+                        create_event_price = (EditText) rootView.findViewById(R.id.event_price_edittext);
+                        create_event_price.setText("");
+                    }
+                });
                 return rootView;
             } else if (this.getArguments().getInt(ARG_SECTION_NUMBER) == 4) {
                 View rootView = inflater.inflate(R.layout.fragment_settings, container, false);
@@ -179,7 +205,7 @@ public class MainActivity extends Activity
 
         @Override
         public void onClick(View v) {
-            create_event_name = (EditText) v.findViewById(R.id.event_name_edittext);
+
         }
     }
 }
