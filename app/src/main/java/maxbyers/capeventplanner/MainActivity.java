@@ -77,7 +77,6 @@ public class MainActivity extends Activity
 
         Firebase.setAndroidContext(this);
         myFirebaseWrapper.setRef("https://cap-event-planner.firebaseio.com/");
-
     }
 
     @Override
