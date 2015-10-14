@@ -30,6 +30,26 @@ public class MainActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
     /**
+     * Comment....
+     */
+    public static class FirebaseWrapper {
+
+        private Firebase innerFirebaseRef;
+
+        public FirebaseWrapper() {
+            innerFirebaseRef = null;
+        }
+
+        public void setRef(String url) {
+            innerFirebaseRef = new Firebase(url);
+        }
+
+        public Firebase getRef() {
+            return innerFirebaseRef;
+        }
+    }
+
+    /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
@@ -38,6 +58,8 @@ public class MainActivity extends Activity
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
+
+    private static FirebaseWrapper myFirebaseWrapper = new FirebaseWrapper();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +76,8 @@ public class MainActivity extends Activity
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
         Firebase.setAndroidContext(this);
+        myFirebaseWrapper.setRef("https://cap-event-planner.firebaseio.com/");
+
     }
 
     @Override
@@ -184,6 +208,8 @@ public class MainActivity extends Activity
 
                         create_event_price = (EditText) rootView.findViewById(R.id.event_price_edittext);
                         create_event_price.setText("");
+
+                        myFirebaseWrapper.getRef().child("message").setValue("Max was here.");
                     }
                 });
                 return rootView;
