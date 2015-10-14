@@ -2,5 +2,30 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_gravity="bottom"
+        android:orientation="horizontal" >
+        <!-- Set OnClickListener to trigger results when pressed -->
+        <Button
+            android:id="@+id/cancel_settings_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_alignParentLeft="true"
+            android:rayout_gravity="bottom"
+            android:text="@string/cancel_settings_button"/>
+        <Button
+            android:id="@+id/save_settings_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginLeft="20dp"
+            android:layout_alignParentEnd="true"
+            android:text="@string/save_settings_button"/>
+    </RelativeLayout>
+
 
 </LinearLayout>
