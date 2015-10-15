@@ -226,7 +226,7 @@ public class MainActivity extends Activity
                         messageRef.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot snapshot) {
-                                create_event_description.setText((String) snapshot.getValue());
+                                //create_event_description.setText((String) snapshot.getValue());
                             }
 
                             @Override
@@ -249,7 +249,7 @@ public class MainActivity extends Activity
 
                         Event newEvent = new Event(name, date, location,
                                                     description, price, false);
-                        Firebase sampleRef = myFirebaseWrapper.getRef().child("events").child("SampleEvent");
+                        Firebase sampleRef = myFirebaseWrapper.getRef().child("events").child(name);
                         sampleRef.setValue(newEvent);
                     }
                 });
