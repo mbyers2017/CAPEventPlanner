@@ -24,7 +24,10 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 
 public class MainActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
@@ -208,7 +211,29 @@ public class MainActivity extends Activity
                         create_event_price = (EditText) rootView.findViewById(R.id.event_price_edittext);
                         create_event_price.setText("");
 
-                        myFirebaseWrapper.getRef().child("message").setValue("Max was here.");
+                        Firebase messageRef = myFirebaseWrapper.getRef().child("message");
+
+                        messageRef.setValue("Max was here.");
+                    }
+                });
+
+                Button saveButton = (Button) rootView.findViewById(R.id.save_button);
+                saveButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Firebase messageRef = myFirebaseWrapper.getRef().child("message");
+
+                        messageRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot snapshot) {
+                                create_event_description.setText((String) snapshot.getValue());
+                            }
+
+                            @Override
+                            public void onCancelled(FirebaseError firebaseError) {
+
+                            }
+                        });
                     }
                 });
                 return rootView;
