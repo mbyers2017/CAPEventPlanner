@@ -234,6 +234,23 @@ public class MainActivity extends Activity
 
                             }
                         });
+                        // Adding an event to the data base.
+                        create_event_name = (EditText) rootView.findViewById(R.id.event_name_edittext);
+                        create_event_date = (EditText) rootView.findViewById(R.id.event_date_edittext);
+                        create_event_location = (EditText) rootView.findViewById(R.id.event_location_edittext);
+                        create_event_description = (EditText) rootView.findViewById(R.id.event_description_edittext);
+                        create_event_price = (EditText) rootView.findViewById(R.id.event_price_edittext);
+
+                        String name = create_event_name.getText().toString();
+                        String date = create_event_date.getText().toString();
+                        String location = create_event_location.getText().toString();
+                        String description = create_event_description.getText().toString();
+                        String price = create_event_price.getText().toString();
+
+                        Event newEvent = new Event(name, date, location,
+                                                    description, price, false);
+                        Firebase sampleRef = myFirebaseWrapper.getRef().child("events").child("SampleEvent");
+                        sampleRef.setValue(newEvent);
                     }
                 });
                 return rootView;
@@ -256,6 +273,47 @@ public class MainActivity extends Activity
         @Override
         public void onClick(View v) {
 
+        }
+    }
+
+    public static class Event{
+        private String title;
+        private String date;
+        private String location;
+        private String description;
+        private String price;
+        private boolean display;
+
+        // Empty constructor for Firbase.
+        public Event(){}
+
+        public Event(String title, String date, String location,
+                     String description, String price, boolean display){
+            this.title = title;
+            this.date = date;
+            this.description = description;
+            this.location = location;
+            this.price = price;
+            this.display = display;
+        }
+
+        public String getTitle() {
+            return title;
+        }
+        public String getDate() {
+            return date;
+        }
+        public String getLocation() {
+            return location;
+        }
+        public String getDescription() {
+            return description;
+        }
+        public String getPrice() {
+            return price;
+        }
+        public boolean getDisplay() {
+            return display;
         }
     }
 }
