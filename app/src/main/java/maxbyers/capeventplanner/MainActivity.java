@@ -197,23 +197,29 @@ public class MainActivity extends Activity
                     public void onClick(View view) {
                         // Remove any text from the text boxes.
                         create_event_name = (EditText) rootView.findViewById(R.id.event_name_edittext);
-                        create_event_name.setText("");
-
                         create_event_date = (EditText) rootView.findViewById(R.id.event_date_edittext);
-                        create_event_date.setText("");
-
                         create_event_location = (EditText) rootView.findViewById(R.id.event_location_edittext);
-                        create_event_location.setText("");
-
                         create_event_description = (EditText) rootView.findViewById(R.id.event_description_edittext);
-                        create_event_description.setText("");
-
                         create_event_price = (EditText) rootView.findViewById(R.id.event_price_edittext);
+
+                        String name = create_event_name.getText().toString();
+                        // Ensure the name isn't null otherwise we delete all events...
+                        if(!name.equals("")) {
+                            // Create a reference to the event in Firebase.
+                            Firebase eventRef = myFirebaseWrapper.getRef().child("events").child(name);
+                            // Delete event info attached to that name.
+                            eventRef.removeValue();
+                        }
+
+                        // Set all fields to empty after an event in progress is deleted.
+                        create_event_name.setText("");
+                        create_event_date.setText("");
+                        create_event_location.setText("");
+                        create_event_description.setText("");
                         create_event_price.setText("");
 
-                        Firebase messageRef = myFirebaseWrapper.getRef().child("message");
-
-                        messageRef.setValue("Max was here.");
+                        //Firebase messageRef = myFirebaseWrapper.getRef().child("message");
+                        //messageRef.setValue("Max was here.");
                     }
                 });
 
@@ -248,9 +254,39 @@ public class MainActivity extends Activity
                         String price = create_event_price.getText().toString();
 
                         Event newEvent = new Event(name, date, location,
-                                                    description, price, false);
-                        Firebase sampleRef = myFirebaseWrapper.getRef().child("events").child(name);
-                        sampleRef.setValue(newEvent);
+                                description, price, false, "NA", false);
+                        // Ensure event has a name or otherwise the child doesn't exist!
+                        if (!name.equals("")){
+                            Firebase sampleRef = myFirebaseWrapper.getRef().child("events").child(name);
+                            sampleRef.setValue(newEvent);
+                        }
+                    }
+                });
+
+                Button submitButton = (Button) rootView.findViewById(R.id.submit_button);
+                submitButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // Adding an event to the data base.
+                        create_event_name = (EditText) rootView.findViewById(R.id.event_name_edittext);
+                        create_event_date = (EditText) rootView.findViewById(R.id.event_date_edittext);
+                        create_event_location = (EditText) rootView.findViewById(R.id.event_location_edittext);
+                        create_event_description = (EditText) rootView.findViewById(R.id.event_description_edittext);
+                        create_event_price = (EditText) rootView.findViewById(R.id.event_price_edittext);
+
+                        String name = create_event_name.getText().toString();
+                        String date = create_event_date.getText().toString();
+                        String location = create_event_location.getText().toString();
+                        String description = create_event_description.getText().toString();
+                        String price = create_event_price.getText().toString();
+
+                        Event newEvent = new Event(name, date, location,
+                                description, price, false, "NA", true);
+                        // Ensure event has a name or otherwise the child doesn't exist!
+                        if (!name.equals("")){
+                            Firebase sampleRef = myFirebaseWrapper.getRef().child("events").child(name);
+                            sampleRef.setValue(newEvent);
+                        }
                     }
                 });
                 return rootView;
@@ -282,19 +318,24 @@ public class MainActivity extends Activity
         private String location;
         private String description;
         private String price;
+        private String user;
         private boolean display;
+        private boolean complete;
 
-        // Empty constructor for Firbase.
+        // Empty constructor for Firebase.
         public Event(){}
 
         public Event(String title, String date, String location,
-                     String description, String price, boolean display){
+                     String description, String price, boolean display,
+                     String user, boolean complete){
             this.title = title;
             this.date = date;
             this.description = description;
             this.location = location;
             this.price = price;
             this.display = display;
+            this.user = user;
+            this.complete = complete;
         }
 
         public String getTitle() {
@@ -315,5 +356,7 @@ public class MainActivity extends Activity
         public boolean getDisplay() {
             return display;
         }
+        public String getUser() {return user; }
+        public boolean getComplete() {return complete; }
     }
 }
