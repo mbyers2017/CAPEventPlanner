@@ -340,10 +340,10 @@ public class MainActivity extends Activity
          *This is a helper function to add a new event to the database at the given
          * reference and then show a toast explaining if the action was successful.
          *
-         * @param ref
-         * @param newEvent
-         * @param successMessage
-         * @param errorMessage
+         * @param ref Firebase reference.
+         * @param newEvent Event we are adding to Firebase.
+         * @param successMessage Message displayed if event is added successfully.
+         * @param errorMessage Message displayed if event is not added.
          */
         public void setValueAndShowToast(Firebase ref, Event newEvent, final CharSequence successMessage,
                                          final CharSequence errorMessage) {
@@ -365,10 +365,10 @@ public class MainActivity extends Activity
          * This is a helper function to remove an event from the database at the given reference
          * and then show a toast explaining if the deletion was successful.
          *
-         * @param ref
-         * @param successMessage
-         * @param errorMessage
-         * @param noEvent
+         * @param ref Firebase reference.
+         * @param successMessage Message displayed if event is deleted successfully.
+         * @param errorMessage Message displayed if event is not removed.
+         * @param noEvent Message displayed if event doesn't exist.
          */
         public void removeValueAndShowToast(Firebase ref, final CharSequence successMessage,
                                          final CharSequence errorMessage, final CharSequence noEvent) {
