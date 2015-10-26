@@ -387,6 +387,11 @@ public class MainActivity extends Activity
             });
         }
 
+        /**
+         * Helper function to set all EditText global variables to the
+         * information currently in their corresponding fields on the form.
+         * @param rootView The current view where the information is coming from.
+         */
         public void getEditTextFields(View rootView) {
             create_event_name = (EditText) rootView.findViewById(R.id.event_name_edittext);
             create_event_date = (EditText) rootView.findViewById(R.id.event_date_edittext);
@@ -395,6 +400,10 @@ public class MainActivity extends Activity
             create_event_price = (EditText) rootView.findViewById(R.id.event_price_edittext);
         }
 
+        /**
+         * Helper function to set the EditText variables to empty strings
+         * which empties all of the text fields on the create event form.
+         */
         public void setEditTextToEmpty() {
             create_event_name.setText("");
             create_event_date.setText("");
