@@ -210,12 +210,8 @@ public class MainActivity extends Activity
                 cancelButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        // Remove any text from the text boxes.
-                        create_event_name = (EditText) rootView.findViewById(R.id.event_name_edittext);
-                        create_event_date = (EditText) rootView.findViewById(R.id.event_date_edittext);
-                        create_event_location = (EditText) rootView.findViewById(R.id.event_location_edittext);
-                        create_event_description = (EditText) rootView.findViewById(R.id.event_description_edittext);
-                        create_event_price = (EditText) rootView.findViewById(R.id.event_price_edittext);
+                        // Set global EditText variables to user inputs.
+                        getEditTextFields(rootView);
 
                         String name = create_event_name.getText().toString();
                         // Ensure the name isn't null otherwise we delete all events...
@@ -235,11 +231,7 @@ public class MainActivity extends Activity
                         }
 
                         // Set all fields to empty after an event in progress is deleted.
-                        create_event_name.setText("");
-                        create_event_date.setText("");
-                        create_event_location.setText("");
-                        create_event_description.setText("");
-                        create_event_price.setText("");
+                        setEditTextToEmpty();
                     }
                 });
 
@@ -261,12 +253,8 @@ public class MainActivity extends Activity
 
                             }
                         });
-                        // Adding an event to the data base.
-                        create_event_name = (EditText) rootView.findViewById(R.id.event_name_edittext);
-                        create_event_date = (EditText) rootView.findViewById(R.id.event_date_edittext);
-                        create_event_location = (EditText) rootView.findViewById(R.id.event_location_edittext);
-                        create_event_description = (EditText) rootView.findViewById(R.id.event_description_edittext);
-                        create_event_price = (EditText) rootView.findViewById(R.id.event_price_edittext);
+                        // Set global EditText variables to user inputs.
+                        getEditTextFields(rootView);
 
                         String name = create_event_name.getText().toString();
                         String date = create_event_date.getText().toString();
@@ -296,12 +284,9 @@ public class MainActivity extends Activity
                 submitButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        // Create variable for the information in the text boxes.
-                        create_event_name = (EditText) rootView.findViewById(R.id.event_name_edittext);
-                        create_event_date = (EditText) rootView.findViewById(R.id.event_date_edittext);
-                        create_event_location = (EditText) rootView.findViewById(R.id.event_location_edittext);
-                        create_event_description = (EditText) rootView.findViewById(R.id.event_description_edittext);
-                        create_event_price = (EditText) rootView.findViewById(R.id.event_price_edittext);
+                        // Set global EditText variables to user inputs.
+                        getEditTextFields(rootView);
+
                         // Create variables to hold the strings entered into the text boxes.
                         String name = create_event_name.getText().toString();
                         String date = create_event_date.getText().toString();
@@ -394,11 +379,28 @@ public class MainActivity extends Activity
                         });
                     }
                 }
+
                 @Override
                 public void onCancelled(FirebaseError firebaseError) {
 
                 }
             });
+        }
+
+        public void getEditTextFields(View rootView) {
+            create_event_name = (EditText) rootView.findViewById(R.id.event_name_edittext);
+            create_event_date = (EditText) rootView.findViewById(R.id.event_date_edittext);
+            create_event_location = (EditText) rootView.findViewById(R.id.event_location_edittext);
+            create_event_description = (EditText) rootView.findViewById(R.id.event_description_edittext);
+            create_event_price = (EditText) rootView.findViewById(R.id.event_price_edittext);
+        }
+
+        public void setEditTextToEmpty() {
+            create_event_name.setText("");
+            create_event_date.setText("");
+            create_event_location.setText("");
+            create_event_description.setText("");
+            create_event_price.setText("");
         }
 
         @Override
