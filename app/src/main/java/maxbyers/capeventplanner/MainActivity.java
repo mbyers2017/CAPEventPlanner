@@ -205,7 +205,7 @@ public class MainActivity extends Activity
             } else if (this.getArguments().getInt(ARG_SECTION_NUMBER) == 3) {
                 final View rootView = inflater.inflate(R.layout.fragment_create_event, container, false);
 
-                // Button portion of this fragment.
+                // Button to delete an event from the database.
                 Button cancelButton = (Button) rootView.findViewById(R.id.cancel_button);
                 cancelButton.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -227,38 +227,11 @@ public class MainActivity extends Activity
                         else {
                             // Create a reference to the event in Firebase.
                             Firebase eventRef = myFirebaseWrapper.getRef().child("events").child(name);
+                            CharSequence noEvent = "There is no event with that name!";
+                            CharSequence failure = "Your event was not successfully deleted! Please try again.";
+                            CharSequence success = "Your event was successfully deleted!";
                             // Delete event info attached to that name.
-                            eventRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(DataSnapshot snapshot) {
-                                    if (snapshot.getValue() == null) {
-                                        Context context = myContextWrapper.getContext();
-                                        CharSequence text = "There is no event with that name!";
-                                        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                                    }
-                                    else {
-                                        snapshot.getRef().removeValue(new Firebase.CompletionListener() {
-                                            @Override
-                                            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
-                                                if (firebaseError != null) {
-                                                    Context context = myContextWrapper.getContext();
-                                                    CharSequence text = "Your event was not successfully deleted! Please try again.";
-                                                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                                                } else {
-                                                    Context context = myContextWrapper.getContext();
-                                                    CharSequence text = "Your event was successfully deleted!";
-                                                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                                                }
-                                            }
-                                        });
-                                    }
-                                }
-
-                                @Override
-                                public void onCancelled(FirebaseError firebaseError) {
-
-                                }
-                            });
+                            removeValueAndShowToast(eventRef, success, failure, noEvent);
                         }
 
                         // Set all fields to empty after an event in progress is deleted.
@@ -267,12 +240,10 @@ public class MainActivity extends Activity
                         create_event_location.setText("");
                         create_event_description.setText("");
                         create_event_price.setText("");
-
-                        //Firebase messageRef = myFirebaseWrapper.getRef().child("message");
-                        //messageRef.setValue("Max was here.");
                     }
                 });
 
+                // Button to save an event to the database.
                 Button saveButton = (Button) rootView.findViewById(R.id.save_button);
                 saveButton.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -313,36 +284,25 @@ public class MainActivity extends Activity
                         }
                         else {
                             Firebase sampleRef = myFirebaseWrapper.getRef().child("events").child(name);
-                            sampleRef.setValue(newEvent, new Firebase.CompletionListener() {
-                                @Override
-                                public void onComplete(FirebaseError firebaseError, Firebase firebase) {
-                                    if (firebaseError != null) {
-                                        Context context = myContextWrapper.getContext();
-                                        CharSequence text = "Your event was not successfully saved! Please try again.";
-                                        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                                    }
-                                    else {
-                                        Context context = myContextWrapper.getContext();
-                                        CharSequence text = "Your event was successfully saved!";
-                                        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                                    }
-                                }
-                            });
+                            CharSequence failure = "Your event was not successfully saved! Please try again.";
+                            CharSequence success = "Your event was successfully saved!";
+                            setValueAndShowToast(sampleRef, newEvent, success, failure);
                         }
                     }
                 });
 
+                // Button to submit an event to the database so it can be  reviewed by CAP.
                 Button submitButton = (Button) rootView.findViewById(R.id.submit_button);
                 submitButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        // Adding an event to the data base.
+                        // Create variable for the information in the text boxes.
                         create_event_name = (EditText) rootView.findViewById(R.id.event_name_edittext);
                         create_event_date = (EditText) rootView.findViewById(R.id.event_date_edittext);
                         create_event_location = (EditText) rootView.findViewById(R.id.event_location_edittext);
                         create_event_description = (EditText) rootView.findViewById(R.id.event_description_edittext);
                         create_event_price = (EditText) rootView.findViewById(R.id.event_price_edittext);
-
+                        // Create variables to hold the strings entered into the text boxes.
                         String name = create_event_name.getText().toString();
                         String date = create_event_date.getText().toString();
                         String location = create_event_location.getText().toString();
@@ -351,29 +311,18 @@ public class MainActivity extends Activity
 
                         Event newEvent = new Event(name, date, location,
                                 description, price, false, "NA", true);
+
                         // Ensure event has a name or otherwise the child doesn't exist!
                         if (name.equals("")){
                             Context context = myContextWrapper.getContext();
                             CharSequence text = "Your event must have a name!";
                             Toast.makeText(context, text, Toast.LENGTH_LONG).show();
                         }
-                        else {
+                        else { // Add event to database and inform user of success.
                             Firebase sampleRef = myFirebaseWrapper.getRef().child("events").child(name);
-                            sampleRef.setValue(newEvent, new Firebase.CompletionListener() {
-                                @Override
-                                public void onComplete(FirebaseError firebaseError, Firebase firebase) {
-                                    if (firebaseError != null) {
-                                        Context context = myContextWrapper.getContext();
-                                        CharSequence text = "Your event was not successfully created! Please try again.";
-                                        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                                    }
-                                    else {
-                                        Context context = myContextWrapper.getContext();
-                                        CharSequence text = "Your event was successfully created!";
-                                        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                                    }
-                                }
-                            });
+                            CharSequence success = "Your event was successfully created!";
+                            CharSequence failure = "Your event was not successfully created! Please try again.";
+                            setValueAndShowToast(sampleRef, newEvent, success, failure);
                         }
                     }
                 });
@@ -385,6 +334,71 @@ public class MainActivity extends Activity
                 View rootView = inflater.inflate(R.layout.fragment_main, container, false);
                 return rootView;
             }
+        }
+
+        /**
+         *This is a helper function to add a new event to the database at the given
+         * reference and then show a toast explaining if the action was successful.
+         *
+         * @param ref
+         * @param newEvent
+         * @param successMessage
+         * @param errorMessage
+         */
+        public void setValueAndShowToast(Firebase ref, Event newEvent, final CharSequence successMessage,
+                                         final CharSequence errorMessage) {
+            ref.setValue(newEvent, new Firebase.CompletionListener() {
+                @Override
+                public void onComplete(FirebaseError firebaseeError, Firebase firebase) {
+                    if (firebaseeError != null) {
+                        Context context = myContextWrapper.getContext();
+                        Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show();
+                    } else {
+                        Context context = myContextWrapper.getContext();
+                        Toast.makeText(context, successMessage, Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+        }
+
+        /**
+         * This is a helper function to remove an event from the database at the given reference
+         * and then show a toast explaining if the deletion was successful.
+         *
+         * @param ref
+         * @param successMessage
+         * @param errorMessage
+         * @param noEvent
+         */
+        public void removeValueAndShowToast(Firebase ref, final CharSequence successMessage,
+                                         final CharSequence errorMessage, final CharSequence noEvent) {
+            ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot snapshot) {
+                    if (snapshot.getValue() == null) { // If no change, then the event didn't exist.
+                        Context context = myContextWrapper.getContext();
+                        Toast.makeText(context, noEvent, Toast.LENGTH_LONG).show();
+                    } else {
+                        // Event exists so we remove it.
+                        snapshot.getRef().removeValue(new Firebase.CompletionListener() {
+                            @Override
+                            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                                if (firebaseError != null) {
+                                    Context context = myContextWrapper.getContext();
+                                    Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show();
+                                } else {
+                                    Context context = myContextWrapper.getContext();
+                                    Toast.makeText(context, successMessage, Toast.LENGTH_LONG).show();
+                                }
+                            }
+                        });
+                    }
+                }
+                @Override
+                public void onCancelled(FirebaseError firebaseError) {
+
+                }
+            });
         }
 
         @Override
