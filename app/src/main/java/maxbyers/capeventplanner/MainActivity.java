@@ -32,6 +32,18 @@ import com.firebase.client.ValueEventListener;
 public class MainActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
+    public static class ContextWrapper {
+
+        private Context context;
+
+        public ContextWrapper() { context = null; };
+
+        public void setContext(Context context) { this.context = context; };
+
+        public Context getContext() { return context; };
+
+    }
+
     /**
      * Comment....
      */
@@ -64,6 +76,8 @@ public class MainActivity extends Activity
 
     private static FirebaseWrapper myFirebaseWrapper = new FirebaseWrapper();
 
+    private static ContextWrapper myContextWrapper = new ContextWrapper();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +94,7 @@ public class MainActivity extends Activity
 
         Firebase.setAndroidContext(this);
         myFirebaseWrapper.setRef("https://cap-event-planner.firebaseio.com/");
+        myContextWrapper.setContext(getApplicationContext());
     }
 
     @Override
@@ -204,11 +219,46 @@ public class MainActivity extends Activity
 
                         String name = create_event_name.getText().toString();
                         // Ensure the name isn't null otherwise we delete all events...
-                        if(!name.equals("")) {
+                        if (name.equals("")){
+                            Context context = myContextWrapper.getContext();
+                            CharSequence text = "You must enter the name of the event you want to delete!";
+                            Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                        }
+                        else {
                             // Create a reference to the event in Firebase.
                             Firebase eventRef = myFirebaseWrapper.getRef().child("events").child(name);
                             // Delete event info attached to that name.
-                            eventRef.removeValue();
+                            eventRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot snapshot) {
+                                    if (snapshot.getValue() == null) {
+                                        Context context = myContextWrapper.getContext();
+                                        CharSequence text = "There is no event with that name!";
+                                        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                                    }
+                                    else {
+                                        snapshot.getRef().removeValue(new Firebase.CompletionListener() {
+                                            @Override
+                                            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                                                if (firebaseError != null) {
+                                                    Context context = myContextWrapper.getContext();
+                                                    CharSequence text = "Your event was not successfully deleted! Please try again.";
+                                                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                                                } else {
+                                                    Context context = myContextWrapper.getContext();
+                                                    CharSequence text = "Your event was successfully deleted!";
+                                                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(FirebaseError firebaseError) {
+
+                                }
+                            });
                         }
 
                         // Set all fields to empty after an event in progress is deleted.
@@ -256,9 +306,28 @@ public class MainActivity extends Activity
                         Event newEvent = new Event(name, date, location,
                                 description, price, false, "NA", false);
                         // Ensure event has a name or otherwise the child doesn't exist!
-                        if (!name.equals("")){
+                        if (name.equals("")){
+                            Context context = myContextWrapper.getContext();
+                            CharSequence text = "Your event must have a name!";
+                            Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                        }
+                        else {
                             Firebase sampleRef = myFirebaseWrapper.getRef().child("events").child(name);
-                            sampleRef.setValue(newEvent);
+                            sampleRef.setValue(newEvent, new Firebase.CompletionListener() {
+                                @Override
+                                public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                                    if (firebaseError != null) {
+                                        Context context = myContextWrapper.getContext();
+                                        CharSequence text = "Your event was not successfully saved! Please try again.";
+                                        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                                    }
+                                    else {
+                                        Context context = myContextWrapper.getContext();
+                                        CharSequence text = "Your event was successfully saved!";
+                                        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                            });
                         }
                     }
                 });
@@ -283,9 +352,28 @@ public class MainActivity extends Activity
                         Event newEvent = new Event(name, date, location,
                                 description, price, false, "NA", true);
                         // Ensure event has a name or otherwise the child doesn't exist!
-                        if (!name.equals("")){
+                        if (name.equals("")){
+                            Context context = myContextWrapper.getContext();
+                            CharSequence text = "Your event must have a name!";
+                            Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                        }
+                        else {
                             Firebase sampleRef = myFirebaseWrapper.getRef().child("events").child(name);
-                            sampleRef.setValue(newEvent);
+                            sampleRef.setValue(newEvent, new Firebase.CompletionListener() {
+                                @Override
+                                public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                                    if (firebaseError != null) {
+                                        Context context = myContextWrapper.getContext();
+                                        CharSequence text = "Your event was not successfully created! Please try again.";
+                                        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                                    }
+                                    else {
+                                        Context context = myContextWrapper.getContext();
+                                        CharSequence text = "Your event was successfully created!";
+                                        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                                    }
+                                }
+                            });
                         }
                     }
                 });
