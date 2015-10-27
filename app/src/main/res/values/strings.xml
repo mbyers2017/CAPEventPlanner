@@ -15,9 +15,12 @@
     <string name="event_price_hint">Enter the price before subsidy and do
         not use $...</string>
 
-    <string name="save_event_button">Save</string>
-    <string name="cancel_event_button">Cancel</string>
+    <string name="save_settings_button">Save</string>
+    <string name="cancel_settings_button">Cancel</string>
 
+    <string name="save_event_button">Save</string>
+    <string name="cancel_event_button">Delete</string>
+    <string name="submit_event_button">Submit</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
