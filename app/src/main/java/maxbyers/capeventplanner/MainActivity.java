@@ -21,7 +21,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,11 +28,6 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Set;
 
 public class MainActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
@@ -178,9 +172,6 @@ public class MainActivity extends Activity
         /**
          * Initialize all global variables.
          */
-        ListView upcoming_events;
-        ArrayAdapter<String> adapter;
-
         EditText create_event_name;
         EditText create_event_date;
         EditText create_event_description;
@@ -206,40 +197,10 @@ public class MainActivity extends Activity
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             if (this.getArguments().getInt(ARG_SECTION_NUMBER) == 1) {
-                final View rootView = inflater.inflate(R.layout.fragment_upcoming_events, container, false);
-                upcoming_events = (ListView) rootView.findViewById(R.id.events_listview);
-
-                Firebase eventsRef = myFirebaseWrapper.getRef().child("events");
-                eventsRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot snapshot) {
-                        ArrayList<String> eventTitles = new ArrayList<String>();
-                        Toast.makeText(myContextWrapper.getContext(), "a", Toast.LENGTH_LONG).show();
-                        HashMap<String, Object> events = (HashMap<String, Object>) snapshot.getValue();
-                        Toast.makeText(myContextWrapper.getContext(), "events.size: " + events.size(), Toast.LENGTH_LONG).show();
-                        Set<String> keys = events.keySet();
-                        Toast.makeText(myContextWrapper.getContext(), "keys.size:" + keys.size(), Toast.LENGTH_LONG).show();
-                        Iterator<String> iter = keys.iterator();
-                        Toast.makeText(myContextWrapper.getContext(), "d", Toast.LENGTH_LONG).show();
-                        while (iter.hasNext()) {
-                            HashMap<String, Object> currentEvent = (HashMap<String, Object>) events.get(iter.next());
-                            eventTitles.add((String) currentEvent.get("title"));
-                        }
-                        Toast.makeText(myContextWrapper.getContext(), eventTitles.get(0), Toast.LENGTH_LONG).show();
-                        adapter = new ArrayAdapter<String>(myContextWrapper.getContext(), android.R.layout.simple_list_item_1, eventTitles);
-                    }
-
-                    @Override
-                    public void onCancelled(FirebaseError firebaseError) {
-
-                    }
-                });
-
-                upcoming_events.setAdapter(adapter);
-
+                View rootView = inflater.inflate(R.layout.fragment_upcoming_events, container, false);
                 return rootView;
             } else if (this.getArguments().getInt(ARG_SECTION_NUMBER) == 2) {
-                final View rootView = inflater.inflate(R.layout.fragment_approve_event, container, false);
+                View rootView = inflater.inflate(R.layout.fragment_approve_event, container, false);
                 return rootView;
             } else if (this.getArguments().getInt(ARG_SECTION_NUMBER) == 3) {
                 final View rootView = inflater.inflate(R.layout.fragment_create_event, container, false);
