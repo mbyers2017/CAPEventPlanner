@@ -213,6 +213,7 @@ public class MainActivity extends Activity
                 eventsRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {
+                        // Testing commit.
                         ArrayList<String> eventTitles = new ArrayList<String>();
                         //Toast.makeText(myContextWrapper.getContext(), "a", Toast.LENGTH_LONG).show();
                         HashMap<String, Object> events = (HashMap<String, Object>) snapshot.getValue();
