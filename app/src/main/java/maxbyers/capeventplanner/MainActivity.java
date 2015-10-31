@@ -179,7 +179,7 @@ public class MainActivity extends Activity
          * Initialize all global variables.
          */
         ListView upcoming_events;
-        ArrayAdapter<String> adapter;
+        ArrayAdapter<Event> adapter;
 
         EditText create_event_name;
         EditText create_event_date;
@@ -214,7 +214,7 @@ public class MainActivity extends Activity
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {
                         // Testing commit.
-                        ArrayList<String> eventTitles = new ArrayList<String>();
+                        ArrayList<Event> eventTitles = new ArrayList<Event>();
                         //Toast.makeText(myContextWrapper.getContext(), "a", Toast.LENGTH_LONG).show();
                         HashMap<String, Object> events = (HashMap<String, Object>) snapshot.getValue();
                         //Toast.makeText(myContextWrapper.getContext(), "events.size: " + events.size(), Toast.LENGTH_LONG).show();
@@ -224,10 +224,11 @@ public class MainActivity extends Activity
                         //Toast.makeText(myContextWrapper.getContext(), "d", Toast.LENGTH_LONG).show();
                         while (iter.hasNext()) {
                             HashMap<String, Object> currentEvent = (HashMap<String, Object>) events.get(iter.next());
-                            eventTitles.add((String) currentEvent.get("title"));
+                            // Typecasting as event doesn't seem right but I don't know what the issue is.
+                            //eventTitles.add((Event) currentEvent.get("title"));
                         }
                         //Toast.makeText(myContextWrapper.getContext(), eventTitles.get(0), Toast.LENGTH_LONG).show();
-                        adapter = new ArrayAdapter<String>(myContextWrapper.getContext(), android.R.layout.simple_list_item_1, eventTitles);
+                        //adapter = new EventsAdapter(myContextWrapper.getContext(), eventTitles);
                     }
 
                     @Override
@@ -236,7 +237,7 @@ public class MainActivity extends Activity
                     }
                 });
 
-                upcoming_events.setAdapter(adapter);
+                //upcoming_events.setAdapter(adapter);
 
                 return rootView;
             } else if (this.getArguments().getInt(ARG_SECTION_NUMBER) == 2) {
@@ -511,5 +512,49 @@ public class MainActivity extends Activity
         }
         public String getUser() {return user; }
         public boolean getComplete() {return complete; }
+    }
+
+    /**
+     * Declared to recycle views.
+     * "View lookup cache"
+     */
+    private static class ViewHolder {
+        TextView name;
+    }
+
+    /**
+     * A custom adapter class which allows us to take data
+     * from the events class and put it into a list view.
+     *
+     * Details: This class recycles views to save memory and
+     * reduce calls to findViewById.
+     */
+    public static class EventsAdapter extends ArrayAdapter<Event> {
+
+        public EventsAdapter(Context context, ArrayList<Event> events) {
+            super(context, R.layout.item_event, events);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            // Get the data item for this position
+            Event event = getItem(position);
+            // Check if an existing view is being reused, otherwise inflate the view
+            ViewHolder viewHolder; // view lookup cache stored in tag
+            if (convertView == null) {
+                viewHolder = new ViewHolder();
+                LayoutInflater inflater = LayoutInflater.from(getContext());
+                convertView = inflater.inflate(R.layout.item_event, parent, false);
+                // Define all parameters to be dsiplayed here.
+                viewHolder.name = (TextView) convertView.findViewById(R.id.eventName);
+                convertView.setTag(viewHolder);
+            } else {
+                viewHolder = (ViewHolder) convertView.getTag();
+            }
+            // Populate the data into the template view using the data object
+            viewHolder.name.setText(event.getTitle());
+            // Return the completed view to render on screen
+            return convertView;
+        }
     }
 }
