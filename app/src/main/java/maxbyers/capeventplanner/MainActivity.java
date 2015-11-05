@@ -209,26 +209,17 @@ public class MainActivity extends Activity
                 final View rootView = inflater.inflate(R.layout.fragment_upcoming_events, container, false);
                 upcoming_events = (ListView) rootView.findViewById(R.id.events_listview);
 
-                Firebase eventsRef = myFirebaseWrapper.getRef().child("events");
+                final Firebase eventsRef = myFirebaseWrapper.getRef().child("events");
                 eventsRef.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot snapshot) {
-                        // Testing commit.
                         ArrayList<Event> eventTitles = new ArrayList<Event>();
-                        //Toast.makeText(myContextWrapper.getContext(), "a", Toast.LENGTH_LONG).show();
-                        HashMap<String, Object> events = (HashMap<String, Object>) snapshot.getValue();
-                        //Toast.makeText(myContextWrapper.getContext(), "events.size: " + events.size(), Toast.LENGTH_LONG).show();
-                        Set<String> keys = events.keySet();
-                        //Toast.makeText(myContextWrapper.getContext(), "keys.size:" + keys.size(), Toast.LENGTH_LONG).show();
-                        Iterator<String> iter = keys.iterator();
-                        //Toast.makeText(myContextWrapper.getContext(), "d", Toast.LENGTH_LONG).show();
-                        while (iter.hasNext()) {
-                            HashMap<String, Object> currentEvent = (HashMap<String, Object>) events.get(iter.next());
-                            // Typecasting as event doesn't seem right but I don't know what the issue is.
-                            //eventTitles.add((Event) currentEvent.get("title"));
+
+                        for (DataSnapshot child : snapshot.getChildren()) {
+                            eventTitles.add(child.getValue(Event.class));
                         }
-                        //Toast.makeText(myContextWrapper.getContext(), eventTitles.get(0), Toast.LENGTH_LONG).show();
-                        //adapter = new EventsAdapter(myContextWrapper.getContext(), eventTitles);
+                        adapter = new EventsAdapter(myContextWrapper.getContext(), eventTitles);
+                        upcoming_events.setAdapter(adapter);
                     }
 
                     @Override
@@ -236,8 +227,6 @@ public class MainActivity extends Activity
 
                     }
                 });
-
-                //upcoming_events.setAdapter(adapter);
 
                 return rootView;
             } else if (this.getArguments().getInt(ARG_SECTION_NUMBER) == 2) {
