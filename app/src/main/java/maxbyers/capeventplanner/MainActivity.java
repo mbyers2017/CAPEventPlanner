@@ -509,6 +509,8 @@ public class MainActivity extends Activity
      */
     private static class ViewHolder {
         TextView name;
+        TextView date;
+        TextView location;
     }
 
     /**
@@ -536,12 +538,16 @@ public class MainActivity extends Activity
                 convertView = inflater.inflate(R.layout.item_event, parent, false);
                 // Define all parameters to be dsiplayed here.
                 viewHolder.name = (TextView) convertView.findViewById(R.id.eventName);
+                viewHolder.date = (TextView) convertView.findViewById(R.id.eventDate);
+                viewHolder.location = (TextView) convertView.findViewById(R.id.eventLocation);
                 convertView.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolder) convertView.getTag();
             }
             // Populate the data into the template view using the data object
             viewHolder.name.setText(event.getTitle());
+            viewHolder.date.setText(event.getDate());
+            viewHolder.location.setText(event.getLocation());
             // Return the completed view to render on screen
             return convertView;
         }
