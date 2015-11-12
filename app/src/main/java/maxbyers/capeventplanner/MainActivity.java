@@ -15,6 +15,7 @@ import android.content.IntentSender;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.Gravity;
@@ -35,6 +36,8 @@ import com.firebase.client.AuthData;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.MutableData;
+import com.firebase.client.Transaction;
 import com.firebase.client.ValueEventListener;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
@@ -440,6 +443,28 @@ public class MainActivity extends Activity
 
 
 
+
+
+    private void updateMarker() {
+        myFirebaseWrapper.getRef().child("marker").runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData currentData) {
+                if(currentData.getValue() == null) {
+                    currentData.setValue(1);
+                } else {
+                    currentData.setValue((Long) currentData.getValue() + 1);
+                }
+                return Transaction.success(currentData); //we can also abort by calling Transaction.abort()
+
+            }
+
+            @Override
+            public void onComplete(FirebaseError firebaseError, boolean b, DataSnapshot dataSnapshot) {
+
+            }
+        });
+    }
+
     /**
      * Unauthenticate from Firebase and from providers where necessary.
      */
@@ -468,13 +493,7 @@ public class MainActivity extends Activity
             showErrorDialog(options.get("error"));
         } else {
             myGoogleWrapper.getMAuthProgressDialog().show();
-            if (provider.equals("twitter")) {
-                // if the provider is twitter, we pust pass in additional options, so use the options endpoint
-                myFirebaseWrapper.getRef().authWithOAuthToken(provider, options, new AuthResultHandler(provider));
-            } else {
-                // if the provider is not twitter, we just need to pass in the oauth_token
-                myFirebaseWrapper.getRef().authWithOAuthToken(provider, options.get("oauth_token"), new AuthResultHandler(provider));
-            }
+            myFirebaseWrapper.getRef().authWithOAuthToken(provider, options.get("oauth_token"), new AuthResultHandler(provider));
         }
     }
 
@@ -482,33 +501,30 @@ public class MainActivity extends Activity
      * Once a user is logged in, take the mAuthData provided from Firebase and "use" it.
      */
     private void setAuthenticatedUser(AuthData authData) {
-        if (authData != null) {
-            /* Hide all the login buttons */
-            myGoogleWrapper.getMGoogleLoginButton().setVisibility(View.GONE);
-            myGoogleWrapper.getMLoggedInStatusTextView().setVisibility(View.VISIBLE);
-            /* show a provider specific status text */
-            String name = null;
-            if (authData.getProvider().equals("facebook")
-                    || authData.getProvider().equals("google")
-                    || authData.getProvider().equals("twitter")) {
-                name = (String) authData.getProviderData().get("displayName");
-            } else if (authData.getProvider().equals("anonymous")
-                    || authData.getProvider().equals("password")) {
-                name = authData.getUid();
+        if (myGoogleWrapper.getLoginScreenReached()) {
+            if (authData != null) {
+                /* Hide all the login buttons */
+                myGoogleWrapper.getMGoogleLoginButton().setVisibility(View.GONE);
+                myGoogleWrapper.getMLoggedInStatusTextView().setVisibility(View.VISIBLE);
+                /* show a provider specific status text */
+                String name = null;
+                if (authData.getProvider().equals("google")) {
+                    name = (String) authData.getProviderData().get("displayName");
+                } else {
+                    Log.e(myGoogleWrapper.getTag(), "Invalid provider: " + authData.getProvider());
+                }
+                if (name != null) {
+                    myGoogleWrapper.getMLoggedInStatusTextView().setText("Logged in as " + name);
+                }
             } else {
-                Log.e(myGoogleWrapper.getTag(), "Invalid provider: " + authData.getProvider());
+                /* No authenticated user show all the login buttons */
+                myGoogleWrapper.getMGoogleLoginButton().setVisibility(View.VISIBLE);
+                myGoogleWrapper.getMLoggedInStatusTextView().setVisibility(View.GONE);
             }
-            if (name != null) {
-                myGoogleWrapper.getMLoggedInStatusTextView().setText("Logged in as " + name + " (" + authData.getProvider() + ")");
-            }
-        } else if (myGoogleWrapper.getLoginScreenReached()){
-            /* No authenticated user show all the login buttons */
-            myGoogleWrapper.getMGoogleLoginButton().setVisibility(View.VISIBLE);
-            myGoogleWrapper.getMLoggedInStatusTextView().setVisibility(View.GONE);
         }
         myGoogleWrapper.setmAuthData(authData);
         /* invalidate options menu to hide/show the logout button */
-        //Activity.supportInvalidateOptionsMenu();
+        ActivityCompat.invalidateOptionsMenu(this);
     }
 
     /**
@@ -574,8 +590,14 @@ public class MainActivity extends Activity
                 String token = null;
 
                 try {
-                    String scope = String.format("oauth2:%s", Scopes.PLUS_LOGIN);
-                    token = GoogleAuthUtil.getToken(MainActivity.this, Plus.AccountApi.getAccountName(myGoogleWrapper.getMGoogleApiClient()), scope);
+                    String email = Plus.AccountApi.getAccountName(myGoogleWrapper.getMGoogleApiClient());
+                    if (email == null || email.length() < 7 || !email.substring(email.length()-7).equals("hmc.edu")) {
+                        token = "nonHMCemail";
+                    }
+                    else {
+                        String scope = String.format("oauth2:%s", Scopes.PLUS_LOGIN);
+                        token = GoogleAuthUtil.getToken(MainActivity.this, Plus.AccountApi.getAccountName(myGoogleWrapper.getMGoogleApiClient()), scope);
+                    }
                 } catch (IOException transientEx) {
                     /* Network or server error */
                     Log.e(myGoogleWrapper.getTag(), "Error authenticating with Google: " + transientEx);
@@ -601,11 +623,33 @@ public class MainActivity extends Activity
             protected void onPostExecute(String token) {
                 myGoogleWrapper.setMGoogleLoginClicked(false);
                 if (token != null) {
-                    /* Successfully got OAuth token, now login with Google */
-                    myFirebaseWrapper.getRef().authWithOAuthToken("google", token, new AuthResultHandler("google"));
+                    if (token.equals("nonHMCemail")) {
+                        myGoogleWrapper.getMAuthProgressDialog().hide();
+                        /* Logout from Google+ */
+                        if (myGoogleWrapper.getMGoogleApiClient().isConnected()) {
+                            Plus.AccountApi.clearDefaultAccount(myGoogleWrapper.getMGoogleApiClient());
+                            myGoogleWrapper.getMGoogleApiClient().disconnect();
+                        }
+                        /* Update authenticated user and show login buttons */
+                        setAuthenticatedUser(null);
+                        Context context = myContextWrapper.getContext();
+                        CharSequence text = "You must use a valid hmc.edu account!";
+                        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                    }
+                    else {
+                        /* Successfully got OAuth token, now login with Google */
+                        myFirebaseWrapper.getRef().authWithOAuthToken("google", token, new AuthResultHandler("google"));
+                    }
                 } else if (errorMessage != null) {
                     myGoogleWrapper.getMAuthProgressDialog().hide();
                     showErrorDialog(errorMessage);
+                    /* Logout from Google+ */
+                    if (myGoogleWrapper.getMGoogleApiClient().isConnected()) {
+                        Plus.AccountApi.clearDefaultAccount(myGoogleWrapper.getMGoogleApiClient());
+                        myGoogleWrapper.getMGoogleApiClient().disconnect();
+                    }
+                    /* Update authenticated user and show login buttons */
+                    setAuthenticatedUser(null);
                 }
             }
         };
@@ -716,6 +760,13 @@ public class MainActivity extends Activity
                 myGoogleWrapper.setMGoogleLoginButton((SignInButton) rootView.findViewById(R.id.login_button));
                 myGoogleWrapper.getMGoogleLoginButton().setOnClickListener(myGoogleWrapper.getClickListener());
                 myGoogleWrapper.setMLoggedInStatusTextView((TextView) rootView.findViewById(R.id.login_status));
+
+                if (myGoogleWrapper.getMAuthData() != null) {
+                    String name = (String) myGoogleWrapper.getMAuthData().getProviderData().get("displayName");
+                    myGoogleWrapper.getMLoggedInStatusTextView().setText("Logged in as " + name);
+                    myGoogleWrapper.getMGoogleLoginButton().setVisibility(View.GONE);
+                    myGoogleWrapper.getMLoggedInStatusTextView().setVisibility(View.VISIBLE);
+                }
 
                 return rootView;
             } else if (this.getArguments().getInt(ARG_SECTION_NUMBER) == 3) {
