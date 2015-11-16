@@ -6,19 +6,14 @@ import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.ListFragment;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentActivity;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -50,10 +45,7 @@ import com.google.android.gms.plus.Plus;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 public class MainActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks,
@@ -64,11 +56,17 @@ public class MainActivity extends Activity
 
         private Context context;
 
-        public ContextWrapper() { context = null; };
+        public ContextWrapper() {
+            context = null;
+        }
 
-        public void setContext(Context context) { this.context = context; };
+        public void setContext(Context context) {
+            this.context = context;
+        }
 
-        public Context getContext() { return context; };
+        public Context getContext() {
+            return context;
+        }
 
     }
 
@@ -134,9 +132,15 @@ public class MainActivity extends Activity
         /* The login button for Google */
         private SignInButton mGoogleLoginButton;
 
-        private View.OnClickListener clickListener;
+        private Button mGoogleLogoutButton;
+
+        private View.OnClickListener loginClickListener;
+
+        private View.OnClickListener logoutClickListener;
 
         private boolean loginScreenReached;
+
+        private boolean approvalVisible;
 
         public GoogleWrapper() {
             mLoggedInStatusTextView = null;
@@ -148,8 +152,11 @@ public class MainActivity extends Activity
             mGoogleLoginClicked = false;
             mGoogleConnectionResult = null;
             mGoogleLoginButton = null;
-            clickListener = null;
+            mGoogleLogoutButton = null;
+            loginClickListener = null;
+            logoutClickListener = null;
             loginScreenReached = false;
+            approvalVisible = false;
         }
 
         public String getTag() {
@@ -232,12 +239,28 @@ public class MainActivity extends Activity
             return mGoogleLoginButton;
         }
 
-        public void setClickListener(View.OnClickListener newValue) {
-            clickListener = newValue;
+        public void setMGoogleLogoutButton(Button newValue) {
+            mGoogleLogoutButton = newValue;
         }
 
-        public View.OnClickListener getClickListener() {
-            return clickListener;
+        public Button getMGoogleLogoutButton() {
+            return mGoogleLogoutButton;
+        }
+
+        public void setLoginClickListener(View.OnClickListener newValue) {
+            loginClickListener = newValue;
+        }
+
+        public View.OnClickListener getLoginClickListener() {
+            return loginClickListener;
+        }
+
+        public void setLogoutClickListener(View.OnClickListener newValue) {
+            logoutClickListener = newValue;
+        }
+
+        public View.OnClickListener getLogoutClickListener() {
+            return logoutClickListener;
         }
 
         public void setLoginScreenReached(boolean newValue) {
@@ -247,10 +270,18 @@ public class MainActivity extends Activity
         public boolean getLoginScreenReached() {
             return loginScreenReached;
         }
+
+        public void setApprovalVisible(boolean newValue) {
+            approvalVisible = newValue;
+        }
+
+        public boolean getApprovalVisible() {
+            return approvalVisible;
+        }
     }
 
     /**
-     * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
+     * Fragments managing the behaviors, interactions and presentation of the navigation drawer.
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
 
@@ -293,6 +324,10 @@ public class MainActivity extends Activity
                 .addScope(Plus.SCOPE_PLUS_LOGIN)
                 .build());
 
+        if (!myGoogleWrapper.getMGoogleApiClient().isConnecting()) {
+            myGoogleWrapper.getMGoogleApiClient().connect();
+        }
+
         /* Setup the progress dialog that is displayed later when authenticating with Firebase */
         myGoogleWrapper.setMAuthProgressDialog(new ProgressDialog(this));
         myGoogleWrapper.getMAuthProgressDialog().setTitle("Loading");
@@ -311,7 +346,7 @@ public class MainActivity extends Activity
          * user and hide hide any login buttons */
         myFirebaseWrapper.getRef().addAuthStateListener(myGoogleWrapper.getMAuthStateListener());
 
-        myGoogleWrapper.setClickListener(new View.OnClickListener() {
+        myGoogleWrapper.setLoginClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 myGoogleWrapper.setMGoogleLoginClicked(true);
@@ -326,6 +361,13 @@ public class MainActivity extends Activity
                         myGoogleWrapper.getMGoogleApiClient().connect();
                     }
                 }
+            }
+        });
+
+        myGoogleWrapper.setLogoutClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                logout();
             }
         });
     }
@@ -364,19 +406,40 @@ public class MainActivity extends Activity
     }
 
     public void onSectionAttached(int number) {
-        switch (number) {
-            case 1:
-                mTitle = getString(R.string.title_section1);
-                break;
-            case 2:
-                mTitle = getString(R.string.title_section2);
-                break;
-            case 3:
-                mTitle = getString(R.string.title_section3);
-                break;
-            case 4:
-                mTitle = getString(R.string.title_section4);
-                break;
+        if (myGoogleWrapper.getApprovalVisible()) {
+            switch (number) {
+                case 1:
+                    mTitle = getString(R.string.title_section1);
+                    break;
+                case 2:
+                    mTitle = getString(R.string.title_section2);
+                    break;
+                case 3:
+                    mTitle = getString(R.string.title_section3);
+                    break;
+                case 4:
+                    mTitle = getString(R.string.title_section4);
+                    break;
+                case 5:
+                    mTitle = getString(R.string.title_section5);
+                    break;
+            }
+        }
+        else {
+            switch (number) {
+                case 1:
+                    mTitle = getString(R.string.title_section1);
+                    break;
+                case 2:
+                    mTitle = getString(R.string.title_section3);
+                    break;
+                case 3:
+                    mTitle = getString(R.string.title_section4);
+                    break;
+                case 4:
+                    mTitle = getString(R.string.title_section5);
+                    break;
+            }
         }
     }
 
@@ -472,6 +535,8 @@ public class MainActivity extends Activity
         if (myGoogleWrapper.getMAuthData() != null) {
             /* logout of Firebase */
             myFirebaseWrapper.getRef().unauth();
+            /* Update authenticated user and show login buttons */
+            setAuthenticatedUser(null);
             /* Logout of any of the Frameworks. This step is optional, but ensures the user is not logged into
              * Facebook/Google+ after logging out of Firebase. */
             /* Logout from Google+ */
@@ -479,8 +544,6 @@ public class MainActivity extends Activity
                 Plus.AccountApi.clearDefaultAccount(myGoogleWrapper.getMGoogleApiClient());
                 myGoogleWrapper.getMGoogleApiClient().disconnect();
             }
-            /* Update authenticated user and show login buttons */
-            setAuthenticatedUser(null);
         }
     }
 
@@ -501,10 +564,44 @@ public class MainActivity extends Activity
      * Once a user is logged in, take the mAuthData provided from Firebase and "use" it.
      */
     private void setAuthenticatedUser(AuthData authData) {
+        if (myGoogleWrapper.getMGoogleApiClient().isConnected()) {
+            if (authData != null) {
+                final String email = Plus.AccountApi.getAccountName(myGoogleWrapper.getMGoogleApiClient());
+                if (email.length() >= 10) {
+                    final String emailName = email.substring(0, email.length()-10);
+                    Firebase userAuthorizationRef = myFirebaseWrapper.getRef().child("users").child(emailName).child("authorized");
+                    userAuthorizationRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot snapshot) {
+                            if (snapshot.exists()) {
+                                if ((boolean) snapshot.getValue()) {
+                                    myGoogleWrapper.setApprovalVisible(true);
+                                    mNavigationDrawerFragment.updateDrawer(true);
+                                }
+                            }
+                            else {
+                                snapshot.getRef().setValue(false);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(FirebaseError firebaseError) {
+
+                        }
+                    });
+                }
+            }
+            else {
+                myGoogleWrapper.setApprovalVisible(false);
+                mNavigationDrawerFragment.updateDrawer(false);
+            }
+        }
+
         if (myGoogleWrapper.getLoginScreenReached()) {
             if (authData != null) {
                 /* Hide all the login buttons */
                 myGoogleWrapper.getMGoogleLoginButton().setVisibility(View.GONE);
+                myGoogleWrapper.getMGoogleLogoutButton().setVisibility(View.VISIBLE);
                 myGoogleWrapper.getMLoggedInStatusTextView().setVisibility(View.VISIBLE);
                 /* show a provider specific status text */
                 String name = null;
@@ -519,9 +616,11 @@ public class MainActivity extends Activity
             } else {
                 /* No authenticated user show all the login buttons */
                 myGoogleWrapper.getMGoogleLoginButton().setVisibility(View.VISIBLE);
+                myGoogleWrapper.getMGoogleLogoutButton().setVisibility(View.GONE);
                 myGoogleWrapper.getMLoggedInStatusTextView().setVisibility(View.GONE);
             }
         }
+
         myGoogleWrapper.setmAuthData(authData);
         /* invalidate options menu to hide/show the logout button */
         ActivityCompat.invalidateOptionsMenu(this);
@@ -751,25 +850,11 @@ public class MainActivity extends Activity
                 });
 
                 return rootView;
-            } else if (this.getArguments().getInt(ARG_SECTION_NUMBER) == 2) {
+            } else if (this.getArguments().getInt(ARG_SECTION_NUMBER) == 2 && myGoogleWrapper.getApprovalVisible()) {
                 final View rootView = inflater.inflate(R.layout.fragment_approve_event, container, false);
 
-                myGoogleWrapper.setLoginScreenReached(true);
-
-                /* Load the Google login button */
-                myGoogleWrapper.setMGoogleLoginButton((SignInButton) rootView.findViewById(R.id.login_button));
-                myGoogleWrapper.getMGoogleLoginButton().setOnClickListener(myGoogleWrapper.getClickListener());
-                myGoogleWrapper.setMLoggedInStatusTextView((TextView) rootView.findViewById(R.id.login_status));
-
-                if (myGoogleWrapper.getMAuthData() != null) {
-                    String name = (String) myGoogleWrapper.getMAuthData().getProviderData().get("displayName");
-                    myGoogleWrapper.getMLoggedInStatusTextView().setText("Logged in as " + name);
-                    myGoogleWrapper.getMGoogleLoginButton().setVisibility(View.GONE);
-                    myGoogleWrapper.getMLoggedInStatusTextView().setVisibility(View.VISIBLE);
-                }
-
                 return rootView;
-            } else if (this.getArguments().getInt(ARG_SECTION_NUMBER) == 3) {
+            } else if (this.getArguments().getInt(ARG_SECTION_NUMBER) == 3 && myGoogleWrapper.getApprovalVisible() || this.getArguments().getInt(ARG_SECTION_NUMBER) == 2 && !myGoogleWrapper.getApprovalVisible()) {
                 final View rootView = inflater.inflate(R.layout.fragment_create_event, container, false);
 
                 // Button to delete an event from the database.
@@ -879,11 +964,32 @@ public class MainActivity extends Activity
                     }
                 });
                 return rootView;
-            } else if (this.getArguments().getInt(ARG_SECTION_NUMBER) == 4) {
-                View rootView = inflater.inflate(R.layout.fragment_settings, container, false);
+            } else if (this.getArguments().getInt(ARG_SECTION_NUMBER) == 4 && myGoogleWrapper.getApprovalVisible() || this.getArguments().getInt(ARG_SECTION_NUMBER) == 3 && !myGoogleWrapper.getApprovalVisible()) {
+                final View rootView = inflater.inflate(R.layout.fragment_account, container, false);
+
+                myGoogleWrapper.setLoginScreenReached(true);
+
+                /* Load the Google login button */
+                myGoogleWrapper.setMGoogleLoginButton((SignInButton) rootView.findViewById(R.id.login_button));
+                myGoogleWrapper.getMGoogleLoginButton().setOnClickListener(myGoogleWrapper.getLoginClickListener());
+                myGoogleWrapper.setMGoogleLogoutButton((Button) rootView.findViewById(R.id.logout_button));
+                myGoogleWrapper.getMGoogleLogoutButton().setOnClickListener(myGoogleWrapper.getLogoutClickListener());
+                myGoogleWrapper.setMLoggedInStatusTextView((TextView) rootView.findViewById(R.id.login_status));
+
+                if (myGoogleWrapper.getMAuthData() != null) {
+                    String name = (String) myGoogleWrapper.getMAuthData().getProviderData().get("displayName");
+                    myGoogleWrapper.getMLoggedInStatusTextView().setText("Logged in as " + name);
+                    myGoogleWrapper.getMGoogleLoginButton().setVisibility(View.GONE);
+                    myGoogleWrapper.getMGoogleLogoutButton().setVisibility(View.VISIBLE);
+                    myGoogleWrapper.getMLoggedInStatusTextView().setVisibility(View.VISIBLE);
+                }
+
+                return rootView;
+            } else if (this.getArguments().getInt(ARG_SECTION_NUMBER) == 5 && myGoogleWrapper.getApprovalVisible() || this.getArguments().getInt(ARG_SECTION_NUMBER) == 4 && !myGoogleWrapper.getApprovalVisible()) {
+                final View rootView = inflater.inflate(R.layout.fragment_settings, container, false);
                 return rootView;
             } else {
-                View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+                final View rootView = inflater.inflate(R.layout.fragment_main, container, false);
                 return rootView;
             }
         }
