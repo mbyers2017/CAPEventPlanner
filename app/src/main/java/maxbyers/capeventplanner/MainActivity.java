@@ -572,7 +572,7 @@ public class MainActivity extends Activity
                 viewHolder = (ViewHolder) convertView.getTag();
             }
             if (position % 2 == 1) {
-                convertView.setBackgroundColor(Color.GRAY);
+                convertView.setBackgroundColor(Color.LTGRAY);
             } else {
                 convertView.setBackgroundColor(Color.WHITE);
             }
