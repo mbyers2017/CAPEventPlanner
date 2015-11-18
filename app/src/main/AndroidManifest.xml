@@ -18,6 +18,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".SingleEventItem"
+            android:label="Upcoming Event Information"></activity>
     </application>
 
 </manifest>

@@ -12,8 +12,7 @@
         venue name on second line...</string>
     <string name="event_description_hint">Additional details for event
         go here...</string>
-    <string name="event_price_hint">Enter the price before subsidy and do
-        not use $...</string>
+    <string name="event_price_hint">Enter the price before subsidy</string>
 
     <string name="save_settings_button">Save</string>
     <string name="cancel_settings_button">Cancel</string>

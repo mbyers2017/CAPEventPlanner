@@ -5,9 +5,12 @@ import android.app.Activity;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.ListActivity;
 import android.app.ListFragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -18,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -206,6 +210,7 @@ public class MainActivity extends Activity
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
             if (this.getArguments().getInt(ARG_SECTION_NUMBER) == 1) {
+                // upcoming event viewer
                 final View rootView = inflater.inflate(R.layout.fragment_upcoming_events, container, false);
                 upcoming_events = (ListView) rootView.findViewById(R.id.events_listview);
 
@@ -225,6 +230,28 @@ public class MainActivity extends Activity
                     @Override
                     public void onCancelled(FirebaseError firebaseError) {
 
+                    }
+                });
+
+
+
+                // listening to single list item on click
+                upcoming_events.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view,
+                                            int position, long id) {
+
+                        // selected item
+                        String eventTitle = (String) adapter.getItem(position).getTitle();
+
+
+                        //String event = ((TextView) view).getText().toString();
+
+                        // Launching new Activity on selecting single List Item
+                        Intent i = new Intent(myContextWrapper.getContext(), SingleEventItem.class);
+                        // sending data to new activity
+                        i.putExtra("title", eventTitle);
+                        startActivity(i);
                     }
                 });
 
@@ -543,6 +570,11 @@ public class MainActivity extends Activity
                 convertView.setTag(viewHolder);
             } else {
                 viewHolder = (ViewHolder) convertView.getTag();
+            }
+            if (position % 2 == 1) {
+                convertView.setBackgroundColor(Color.GRAY);
+            } else {
+                convertView.setBackgroundColor(Color.WHITE);
             }
             // Populate the data into the template view using the data object
             viewHolder.name.setText(event.getTitle());
