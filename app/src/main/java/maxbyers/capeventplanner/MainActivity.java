@@ -955,6 +955,11 @@ public class MainActivity extends Activity
                             CharSequence text = "Your event must have a name!";
                             Toast.makeText(context, text, Toast.LENGTH_LONG).show();
                         }
+                        else if (!date.matches("^(1[0-2]|0[1-9])/(3[01]|[12][0-9]|0[1-9])/(19|20)[0-9]{2}$")) {
+                            Context context = myContextWrapper.getContext();
+                            CharSequence text = "Please enter a valid date in the correct format!";
+                            Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                        }
                         else { // Add event to database and inform user of success.
                             Firebase sampleRef = myFirebaseWrapper.getRef().child("events").child(name);
                             CharSequence success = "Your event was successfully created!";
