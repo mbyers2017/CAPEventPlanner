@@ -10,10 +10,12 @@
     android:orientation="vertical"
     tools:context=".MainActivity$PlaceholderFragment">
 
-    <ScrollView
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
-
-    </ScrollView>
+    <ListView
+        android:id="@+id/events_listview"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="20dp">
+    </ListView>
 
 </LinearLayout>

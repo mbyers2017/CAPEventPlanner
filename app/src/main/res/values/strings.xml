@@ -4,16 +4,15 @@
     <string name="title_section1">Upcoming Events</string>
     <string name="title_section2">Approve Events</string>
     <string name="title_section3">Create Events</string>
-    <string name="title_section4">Settings</string>
+    <string name="title_section4">Account</string>
+    <string name="title_section5">Settings</string>
 
     <string name="event_name_hint">Event name goes here...</string>
     <string name="event_date_hint">Use mm/dd/yyyy format...</string>
-    <string name="event_location_hint">Address on first line and optional
-        venue name on second line...</string>
+    <string name="event_location_hint">Address or location of the event...</string>
     <string name="event_description_hint">Additional details for event
         go here...</string>
-    <string name="event_price_hint">Enter the price before subsidy and do
-        not use $...</string>
+    <string name="event_price_hint">Enter the price before subsidy</string>
 
     <string name="save_settings_button">Save</string>
     <string name="cancel_settings_button">Cancel</string>
@@ -28,4 +27,8 @@
     <string name="action_example">Example action</string>
 
     <string name="action_settings">Settings</string>
+
+    <string name="login_google_button">Login</string>
+    <string name="logout_google_button">Logout</string>
+    <string name="action_logout">Logout</string>
 </resources>
