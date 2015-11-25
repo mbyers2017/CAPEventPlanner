@@ -8,8 +8,7 @@
 
     <string name="event_name_hint">Event name goes here...</string>
     <string name="event_date_hint">Use mm/dd/yyyy format...</string>
-    <string name="event_location_hint">Address on first line and optional
-        venue name on second line...</string>
+    <string name="event_location_hint">Address or location of the event...</string>
     <string name="event_description_hint">Additional details for event
         go here...</string>
     <string name="event_price_hint">Enter the price before subsidy</string>
