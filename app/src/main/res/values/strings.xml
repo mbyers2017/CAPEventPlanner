@@ -4,7 +4,8 @@
     <string name="title_section1">Upcoming Events</string>
     <string name="title_section2">Approve Events</string>
     <string name="title_section3">Create Events</string>
-    <string name="title_section4">Settings</string>
+    <string name="title_section4">Account</string>
+    <string name="title_section5">Settings</string>
 
     <string name="event_name_hint">Event name goes here...</string>
     <string name="event_date_hint">Use mm/dd/yyyy format...</string>
@@ -26,4 +27,8 @@
     <string name="action_example">Example action</string>
 
     <string name="action_settings">Settings</string>
+
+    <string name="login_google_button">Login</string>
+    <string name="logout_google_button">Logout</string>
+    <string name="action_logout">Logout</string>
 </resources>

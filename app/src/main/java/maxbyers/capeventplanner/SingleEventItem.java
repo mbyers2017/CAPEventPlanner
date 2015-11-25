@@ -15,6 +15,8 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
+import java.text.DecimalFormat;
+import java.util.HashMap;
 
 
 public class SingleEventItem extends Activity {
@@ -47,7 +49,9 @@ public class SingleEventItem extends Activity {
                 txtDate.setText(event.getDate());
                 txtDescription.setText(event.getDescription());
                 txtLocation.setText(event.getLocation());
-                txtPrice.setText(event.getPrice());
+                DecimalFormat decim = new DecimalFormat("0.00");
+                String price = decim.format(event.getPrice());
+                txtPrice.setText("$" + price);
             }
 
             @Override
@@ -67,17 +71,20 @@ public class SingleEventItem extends Activity {
         private String date;
         private String location;
         private String description;
-        private String price;
+        private double price;
         private String user;
         private boolean display;
         private boolean complete;
+        private HashMap<String, String> users;
 
         // Empty constructor for Firebase.
-        public Event(){}
+        public Event(){
+
+        }
 
         public Event(String title, String date, String location,
-                     String description, String price, boolean display,
-                     String user, boolean complete){
+                     String description, double price, boolean display, String user,
+                     boolean complete, HashMap<String, String> users){
             this.title = title;
             this.date = date;
             this.description = description;
@@ -86,6 +93,7 @@ public class SingleEventItem extends Activity {
             this.display = display;
             this.user = user;
             this.complete = complete;
+            this.users = users;
         }
 
         public String getTitle() {
@@ -100,13 +108,20 @@ public class SingleEventItem extends Activity {
         public String getDescription() {
             return description;
         }
-        public String getPrice() {
+        public double getPrice() {
             return price;
         }
         public boolean getDisplay() {
             return display;
         }
-        public String getUser() {return user; }
-        public boolean getComplete() {return complete; }
+        public String getUser() {
+            return user;
+        }
+        public boolean getComplete() {
+            return complete;
+        }
+        public HashMap<String, String> getUsers() {
+            return users;
+        }
     }
 }
