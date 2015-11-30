@@ -31,4 +31,10 @@
     <string name="login_google_button">Login</string>
     <string name="logout_google_button">Logout</string>
     <string name="action_logout">Logout</string>
+
+    <string name="event_subsidy_hint">Enter the subsidy amount</string>
+    <string name="approve_event_button">Approve</string>
+    <string name="deny_event_button">Deny</string>
+
+    <string name="rsvp_event_button">RSVP</string>
 </resources>

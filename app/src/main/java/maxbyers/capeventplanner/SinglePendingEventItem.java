@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,30 +22,39 @@ import com.firebase.client.ValueEventListener;
 
 import java.text.DecimalFormat;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
-public class SingleEventItem extends Activity {
+public class SinglePendingEventItem extends Activity {
+
+    private static Pattern pattern1;
+
+    private static Pattern pattern2;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.setContentView(R.layout.single_event_item);
+        this.setContentView(R.layout.single_pending_event_item);
         this.getActionBar().setDisplayHomeAsUpEnabled(true);
 
-        final TextView txtTitle = (TextView) findViewById(R.id.single_event_title);
-        final TextView txtDate = (TextView) findViewById(R.id.single_event_date);
-        final TextView txtDescription = (TextView) findViewById(R.id.single_event_description);
-        final TextView txtPrice = (TextView) findViewById(R.id.single_event_price);
-        final TextView txtLocation = (TextView) findViewById(R.id.single_event_location);
-        final TextView txtNumber = (TextView) findViewById(R.id.single_event_number);
-        final Button rsvpButton = (Button) findViewById(R.id.rsvp_button);
+        pattern1 = Pattern.compile("\\$[0-9,\\.]+");
+        pattern2 = Pattern.compile("[0-9,\\.]+");
+
+        final TextView txtTitle = (TextView) findViewById(R.id.single_pending_event_title);
+        final TextView txtDate = (TextView) findViewById(R.id.single_pending_event_date);
+        final TextView txtDescription = (TextView) findViewById(R.id.single_pending_event_description);
+        final TextView txtPrice = (TextView) findViewById(R.id.single_pending_event_price);
+        final TextView txtLocation = (TextView) findViewById(R.id.single_pending_event_location);
+        final Button denyButton = (Button) findViewById(R.id.deny_button);
+        final Button approveButton = (Button) findViewById(R.id.approve_button);
 
 
 
-        final Intent i = getIntent();
+        Intent i = getIntent();
         // getting attached intent data
         final String title = i.getStringExtra("title");
-        final String user = i.getStringExtra("user");
-        Firebase mainRef = new Firebase("https://cap-event-planner.firebaseio.com/");
+        final Firebase mainRef = new Firebase("https://cap-event-planner.firebaseio.com/");
         mainRef.setAndroidContext(getApplicationContext());
         final Firebase ref = mainRef.child("events").child(title);
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -58,12 +68,6 @@ public class SingleEventItem extends Activity {
                 DecimalFormat decim = new DecimalFormat("0.00");
                 String price = decim.format(event.getPrice());
                 txtPrice.setText("$" + price);
-                if (event.getUsers() == null) {
-                    txtNumber.setText("Number of students attending: 0");
-                }
-                else {
-                    txtNumber.setText("Number of students attending: " + event.getUsers().size());
-                }
             }
 
             @Override
@@ -71,46 +75,50 @@ public class SingleEventItem extends Activity {
             }
         });
 
-        rsvpButton.setOnClickListener(new View.OnClickListener() {
+        denyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (user == null) {
+                ref.child("date").setValue("01/01/2000");
+                Context context = getApplicationContext();
+                CharSequence text = "This event has been denied!";
+                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                finish();
+            }
+        });
+
+        approveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final EditText pendingEventSubsidy = (EditText) findViewById(R.id.event_subsidy_edittext);
+                String subsidy = pendingEventSubsidy.getText().toString();
+
+                Matcher matcher1 = pattern1.matcher(subsidy);
+                Matcher matcher2 = pattern2.matcher(subsidy);
+                String match = null;
+                if (matcher1.find()) {
+                    match = matcher1.group();
+                    match = match.replaceAll("\\$", "");
+                    match = match.replaceAll(",", "");
+                }
+                else if (matcher2.find()) {
+                    match = matcher2.group();
+                    match = match.replaceAll("\\$", "");
+                    match = match.replaceAll(",", "");
+                }
+
+                final String firebaseMatch = match;
+
+                if (firebaseMatch == null) {
                     Context context = getApplicationContext();
-                    CharSequence text = "You must be logged in to sign up for this event!";
+                    CharSequence text = "Please enter a valid subsidy price!";
                     Toast.makeText(context, text, Toast.LENGTH_LONG).show();
                 }
                 else {
-                    ref.child("users").addListenerForSingleValueEvent(new ValueEventListener() {
+                    ref.child("display").setValue(true);
+                    ref.child("price").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot snapshot) {
-                            if (snapshot.exists() && ((HashMap<String, String>) snapshot.getValue()).containsValue(user)) {
-                                Context context = getApplicationContext();
-                                CharSequence text = "You already signed up for this event!";
-                                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                            }
-                            else {
-                                snapshot.getRef().push().setValue(user, new Firebase.CompletionListener() {
-                                    @Override
-                                    public void onComplete(FirebaseError firebaseError, Firebase firebase) {
-                                        if (firebaseError == null) {
-                                            firebase.getParent().addListenerForSingleValueEvent(new ValueEventListener() {
-                                                @Override
-                                                public void onDataChange(DataSnapshot snapshot) {
-                                                    txtNumber.setText("Number of students attending: " + ((HashMap<String, String>) snapshot.getValue()).size());
-                                                    Context context = getApplicationContext();
-                                                    CharSequence text = "You successfully signed up for this event!";
-                                                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                                                }
-
-                                                @Override
-                                                public void onCancelled(FirebaseError firebaseError) {
-
-                                                }
-                                            });
-                                        }
-                                    }
-                                });
-                            }
+                            snapshot.getRef().setValue(Double.parseDouble(snapshot.getValue()+"") - Double.parseDouble(firebaseMatch));
                         }
 
                         @Override
@@ -118,6 +126,10 @@ public class SingleEventItem extends Activity {
 
                         }
                     });
+                    Context context = getApplicationContext();
+                    CharSequence text = "This event has been approved!";
+                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                    finish();
                 }
             }
         });

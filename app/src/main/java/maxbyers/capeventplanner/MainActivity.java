@@ -817,7 +817,9 @@ public class MainActivity extends Activity
          * Initialize all global variables.
          */
         ListView upcoming_events;
-        ArrayAdapter<Event> adapter;
+        ListView pending_events;
+        ArrayAdapter<Event> upcoming_adapter;
+        ArrayAdapter<Event> pending_adapter;
 
         EditText create_event_name;
         EditText create_event_date;
@@ -864,15 +866,21 @@ public class MainActivity extends Activity
                                 ArrayList<Event> events = new ArrayList<Event>();
                                 for (DataSnapshot child : snapshot.getChildren()) {
                                     Event event = child.getValue(Event.class);
-                                    if (/*event.getComplete() && event.getDisplay() && */dateToInt(event.getDate()) >= dateToInt(formattedDate)) {
+                                    if (event.getComplete() && event.getDisplay() && dateToInt(event.getDate()) >= dateToInt(formattedDate)) {
                                         events.add(event);
                                     }
                                 }
 
                                 events = sort(events, "date");
 
-                                adapter = new EventsAdapter(myContextWrapper.getContext(), events);
-                                upcoming_events.setAdapter(adapter);
+                                upcoming_adapter = new EventsAdapter(myContextWrapper.getContext(), events);
+                                upcoming_events.setAdapter(upcoming_adapter);
+
+                                if (events.size() == 0) {
+                                    Context context = myContextWrapper.getContext();
+                                    CharSequence text = "There are no upcoming events!";
+                                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                                }
                             }
 
                             @Override
@@ -895,9 +903,17 @@ public class MainActivity extends Activity
                     @Override
                     public void onItemClick(AdapterView<?> parent, View view,
                                             int position, long id) {
+                        String user = null;
+
+                        if (myGoogleWrapper.getMAuthData() != null) {
+                            final String email = Plus.AccountApi.getAccountName(myGoogleWrapper.getMGoogleApiClient());
+                            if (email.length() >= 10) {
+                                user = email.substring(0, email.length()-10);
+                            }
+                        }
 
                         // selected item
-                        String eventTitle = (String) adapter.getItem(position).getTitle();
+                        String eventTitle = (String) upcoming_adapter.getItem(position).getTitle();
 
 
                         //String event = ((TextView) view).getText().toString();
@@ -906,13 +922,117 @@ public class MainActivity extends Activity
                         Intent i = new Intent(myContextWrapper.getContext(), SingleEventItem.class);
                         // sending data to new activity
                         i.putExtra("title", eventTitle);
+                        i.putExtra("user", user);
                         startActivity(i);
                     }
                 });
 
                 return rootView;
             } else if (this.getArguments().getInt(ARG_SECTION_NUMBER) == 2 && myGoogleWrapper.getApprovalVisible()) {
+                // upcoming event viewer
                 final View rootView = inflater.inflate(R.layout.fragment_approve_event, container, false);
+                pending_events = (ListView) rootView.findViewById(R.id.pending_events_listview);
+
+                final Firebase timeRef = myFirebaseWrapper.getRef().child("time");
+                timeRef.setValue(ServerValue.TIMESTAMP);
+                timeRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        Date date = new Date((Long) snapshot.getValue());
+                        DateFormat format = new SimpleDateFormat("MM/dd/yyyy");
+                        format.setTimeZone(TimeZone.getTimeZone("Etc/GMT+12"));
+                        final String formattedDate = format.format(date);
+
+                        snapshot.getRef().getParent().child("events").addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot snapshot) {
+                                ArrayList<Event> events = new ArrayList<Event>();
+                                for (DataSnapshot child : snapshot.getChildren()) {
+                                    Event event = child.getValue(Event.class);
+                                    if (event.getComplete() && !event.getDisplay() && dateToInt(event.getDate()) >= dateToInt(formattedDate)) {
+                                        events.add(event);
+                                    }
+                                }
+
+                                events = sort(events, "date");
+
+                                pending_adapter = new EventsAdapter(myContextWrapper.getContext(), events);
+                                pending_events.setAdapter(pending_adapter);
+
+                                if (events.size() == 0) {
+                                    Context context = myContextWrapper.getContext();
+                                    CharSequence text = "There are no pending events!";
+                                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(FirebaseError firebaseError) {
+
+                            }
+                        });
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+
+                    }
+                });
+
+
+
+                // listening to single list item on click
+                pending_events.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, View view,
+                                            int position, long id) {
+
+                        // selected item
+                        final String eventTitle = (String) pending_adapter.getItem(position).getTitle();
+
+                        myFirebaseWrapper.getRef().child("events").child(eventTitle).child("display").addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot snapshot) {
+                                if ((Boolean) snapshot.getValue()) {
+                                    Context context = myContextWrapper.getContext();
+                                    CharSequence text = "This event has already been approved!";
+                                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                                }
+                                else {
+                                    snapshot.getRef().getParent().child("date").addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot snapshot) {
+                                            if (((String) snapshot.getValue()).equals("01/01/2000")) {
+                                                Context context = myContextWrapper.getContext();
+                                                CharSequence text = "This event has already been denied!";
+                                                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                                            }
+                                            else {
+                                                //String event = ((TextView) view).getText().toString();
+
+                                                // Launching new Activity on selecting single List Item
+                                                Intent i = new Intent(myContextWrapper.getContext(), SinglePendingEventItem.class);
+                                                // sending data to new activity
+                                                i.putExtra("title", eventTitle);
+                                                startActivity(i);
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(FirebaseError firebaseError) {
+
+                                        }
+                                    });
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(FirebaseError firebaseError) {
+
+                            }
+                        });
+                    }
+                });
 
                 return rootView;
             } else if (this.getArguments().getInt(ARG_SECTION_NUMBER) == 3 && myGoogleWrapper.getApprovalVisible() ||
@@ -1053,7 +1173,8 @@ public class MainActivity extends Activity
                                         Context context = myContextWrapper.getContext();
                                         CharSequence text = "An event with that name already exists!";
                                         Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                                    } else {
+                                    }
+                                    else {
                                         if (!date.matches("^(1[0-2]|0[1-9])/(3[01]|[12][0-9]|0[1-9])/(19|20)[0-9]{2}$")) {
                                             Context context = myContextWrapper.getContext();
                                             CharSequence text = "Please enter a valid date in the correct format!";
@@ -1079,13 +1200,36 @@ public class MainActivity extends Activity
                                             CharSequence text = "You must be logged in to create an event!";
                                             Toast.makeText(context, text, Toast.LENGTH_LONG).show();
                                         }
-                                        else { // Add event to database and inform user of success.
-                                            Event newEvent = new Event(name, date, location, description,
-                                                    Double.parseDouble(firebaseMatch), false, firebaseUser, true, null);
-                                            CharSequence success = "Your event was successfully created!";
-                                            CharSequence failure = "Your event was not successfully created! Please try again.";
-                                            setValueAndShowToast(snapshot.getRef(), newEvent, success, failure);
-                                            snapshot.getRef().getParent().getParent().child("users").child(firebaseUser).child("events").push().setValue(name);
+                                        else {
+                                            final Firebase timeRef = snapshot.getRef().getParent().getParent().child("time");
+                                            timeRef.setValue(ServerValue.TIMESTAMP);
+                                            timeRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(DataSnapshot snapshot) {
+                                                    Date currentDate = new Date((Long) snapshot.getValue());
+                                                    DateFormat format = new SimpleDateFormat("MM/dd/yyyy");
+                                                    format.setTimeZone(TimeZone.getTimeZone("Etc/GMT+12"));
+                                                    final String formattedDate = format.format(currentDate);
+                                                    if (dateToInt(date) <= dateToInt(formattedDate)) {
+                                                        Context context = myContextWrapper.getContext();
+                                                        CharSequence text = "Please enter a valid date in the future!";
+                                                        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                                                    }
+                                                    else { // Add event to database and inform user of success.
+                                                        Event newEvent = new Event(name, date, location, description,
+                                                                Double.parseDouble(firebaseMatch), false, firebaseUser, true, null);
+                                                        CharSequence success = "Your event was successfully created!";
+                                                        CharSequence failure = "Your event was not successfully created! Please try again.";
+                                                        setValueAndShowToast(snapshot.getRef().getParent().child("events").child(name), newEvent, success, failure);
+                                                        snapshot.getRef().getParent().child("users").child(firebaseUser).child("events").push().setValue(name);
+                                                    }
+                                                }
+
+                                                @Override
+                                                public void onCancelled(FirebaseError firebaseError) {
+
+                                                }
+                                            });
                                         }
                                     }
                                 }
