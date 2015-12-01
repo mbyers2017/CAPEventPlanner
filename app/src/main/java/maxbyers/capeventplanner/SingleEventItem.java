@@ -78,8 +78,7 @@ public class SingleEventItem extends Activity {
                     Context context = getApplicationContext();
                     CharSequence text = "You must be logged in to sign up for this event!";
                     Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                }
-                else {
+                } else {
                     ref.child("users").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot snapshot) {
@@ -87,8 +86,7 @@ public class SingleEventItem extends Activity {
                                 Context context = getApplicationContext();
                                 CharSequence text = "You already signed up for this event!";
                                 Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                            }
-                            else {
+                            } else {
                                 snapshot.getRef().push().setValue(user, new Firebase.CompletionListener() {
                                     @Override
                                     public void onComplete(FirebaseError firebaseError, Firebase firebase) {
@@ -128,63 +126,5 @@ public class SingleEventItem extends Activity {
             finish();
         }
         return true;
-    }
-    public static class Event{
-        private String title;
-        private String date;
-        private String location;
-        private String description;
-        private double price;
-        private String user;
-        private boolean display;
-        private boolean complete;
-        private HashMap<String, String> users;
-
-        // Empty constructor for Firebase.
-        public Event(){
-
-        }
-
-        public Event(String title, String date, String location,
-                     String description, double price, boolean display, String user,
-                     boolean complete, HashMap<String, String> users){
-            this.title = title;
-            this.date = date;
-            this.description = description;
-            this.location = location;
-            this.price = price;
-            this.display = display;
-            this.user = user;
-            this.complete = complete;
-            this.users = users;
-        }
-
-        public String getTitle() {
-            return title;
-        }
-        public String getDate() {
-            return date;
-        }
-        public String getLocation() {
-            return location;
-        }
-        public String getDescription() {
-            return description;
-        }
-        public double getPrice() {
-            return price;
-        }
-        public boolean getDisplay() {
-            return display;
-        }
-        public String getUser() {
-            return user;
-        }
-        public boolean getComplete() {
-            return complete;
-        }
-        public HashMap<String, String> getUsers() {
-            return users;
-        }
     }
 }

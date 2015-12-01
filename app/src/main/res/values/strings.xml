@@ -5,7 +5,7 @@
     <string name="title_section2">Approve Events</string>
     <string name="title_section3">Create Events</string>
     <string name="title_section4">Account</string>
-    <string name="title_section5">Settings</string>
+
 
     <string name="event_name_hint">Event name goes here...</string>
     <string name="event_date_hint">Use mm/dd/yyyy format...</string>
