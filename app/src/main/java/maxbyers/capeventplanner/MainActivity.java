@@ -51,7 +51,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
@@ -1213,7 +1212,7 @@ public class MainActivity extends Activity
             return rootView;
         }
 
-        public ArrayList<Event> sort(ArrayList<Event> original, String criterion) {
+        private ArrayList<Event> sort(ArrayList<Event> original, String criterion) {
             int size = original.size();
             if (size <= 1) {
                 return original;
@@ -1229,7 +1228,7 @@ public class MainActivity extends Activity
             return merge(sort(first, criterion), sort(second, criterion), criterion);
         }
 
-        public ArrayList<Event> merge(ArrayList<Event> first, ArrayList<Event> second, String criterion) {
+        private ArrayList<Event> merge(ArrayList<Event> first, ArrayList<Event> second, String criterion) {
             ArrayList<Event> result = new ArrayList<Event>();
             int i = 0;
             int j = 0;
@@ -1254,7 +1253,7 @@ public class MainActivity extends Activity
             return result;
         }
 
-        public int dateToInt(String date) {
+        private int dateToInt(String date) {
             return Integer.parseInt(date.substring(3,5))+32*Integer.parseInt(date.substring(0,2))+32*15*Integer.parseInt(date.substring(6));
         }
 
@@ -1267,7 +1266,7 @@ public class MainActivity extends Activity
          * @param successMessage Message displayed if event is added successfully.
          * @param errorMessage Message displayed if event is not added.
          */
-        public void setValueAndShowToast(Firebase ref, Event newEvent, final CharSequence successMessage,
+        private void setValueAndShowToast(Firebase ref, Event newEvent, final CharSequence successMessage,
                                          final CharSequence errorMessage) {
             ref.setValue(newEvent, new Firebase.CompletionListener() {
                 @Override
@@ -1287,7 +1286,7 @@ public class MainActivity extends Activity
          * information currently in their corresponding fields on the form.
          * @param rootView The current view where the information is coming from.
          */
-        public void getEditTextFields(View rootView) {
+        private void getEditTextFields(View rootView) {
             create_event_name = (EditText) rootView.findViewById(R.id.event_name_edittext);
             create_event_date = (EditText) rootView.findViewById(R.id.event_date_edittext);
             create_event_location = (EditText) rootView.findViewById(R.id.event_location_edittext);

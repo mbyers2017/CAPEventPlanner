@@ -50,6 +50,13 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
         android:layout_marginLeft="20dp"
-        android:layout_alignParentEnd="true"
         android:text="@string/rsvp_event_button"/>
+    <Button
+        android:id="@+id/email_button"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
+        android:text="@string/email_event_button"/>
 </LinearLayout>

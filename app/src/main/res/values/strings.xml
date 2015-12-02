@@ -37,4 +37,5 @@
     <string name="deny_event_button">Deny</string>
 
     <string name="rsvp_event_button">RSVP</string>
+    <string name="email_event_button">Email Attendees</string>
 </resources>
