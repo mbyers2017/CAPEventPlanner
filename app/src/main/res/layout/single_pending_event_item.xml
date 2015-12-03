@@ -2,69 +2,80 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
-    <TextView android:id="@+id/single_pending_event_title"
+    <ScrollView
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:textSize="25dip"
-        android:textStyle="bold"
-        android:padding="10dip"
-        android:textColor="#000000"/>
-    <TextView android:id="@+id/single_pending_event_date"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:textSize="@dimen/abc_text_size_medium_material"
-        android:textStyle="normal"
-        android:padding="10dip"
-        android:textColor="#000000"/>
-    <TextView android:id="@+id/single_pending_event_price"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:textSize="@dimen/abc_text_size_medium_material"
-        android:textStyle="normal"
-        android:padding="10dip"
-        android:textColor="#000000"/>
-    <TextView android:id="@+id/single_pending_event_description"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:textSize="@dimen/abc_text_size_medium_material"
-        android:textStyle="normal"
-        android:padding="10dip"
-        android:textColor="#000000"/>
-    <TextView android:id="@+id/single_pending_event_location"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:textSize="@dimen/abc_text_size_medium_material"
-        android:textStyle="normal"
-        android:padding="10dip"
-        android:textColor="#000000"/>
-    <EditText
-        android:id="@+id/event_subsidy_edittext"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginLeft="20dp"
-        android:hint="@string/event_subsidy_hint" />
-    <RelativeLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:gravity="bottom"
-        android:orientation="horizontal" >
-        <!-- Set OnClickListener to trigger results when pressed -->
-        <Button
-            android:id="@+id/deny_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginLeft="20dp"
-            android:layout_alignParentStart="true"
-            android:text="@string/deny_event_button"/>
-        <Button
-            android:id="@+id/approve_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_marginLeft="20dp"
-            android:layout_alignParentEnd="true"
-            android:text="@string/approve_event_button"/>
-    </RelativeLayout>
+        android:layout_height="fill_parent">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:orientation="vertical">
+            <TextView android:id="@+id/single_pending_event_title"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textSize="25dip"
+                android:textStyle="bold"
+                android:padding="10dip"
+                android:textColor="#000000"/>
+            <TextView android:id="@+id/single_pending_event_date"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/abc_text_size_medium_material"
+                android:textStyle="normal"
+                android:padding="10dip"
+                android:textColor="#000000"/>
+            <TextView android:id="@+id/single_pending_event_price"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/abc_text_size_medium_material"
+                android:textStyle="normal"
+                android:padding="10dip"
+                android:textColor="#000000"/>
+            <TextView android:id="@+id/single_pending_event_description"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/abc_text_size_medium_material"
+                android:textStyle="normal"
+                android:padding="10dip"
+                android:textColor="#000000"/>
+            <TextView android:id="@+id/single_pending_event_location"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:textSize="@dimen/abc_text_size_medium_material"
+                android:textStyle="normal"
+                android:padding="10dip"
+                android:textColor="#000000"/>
+            <EditText
+                android:id="@+id/event_subsidy_edittext"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:layout_marginLeft="20dp"
+                android:hint="@string/event_subsidy_hint" />
+            <RelativeLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:gravity="bottom"
+                android:orientation="horizontal" >
+                <!-- Set OnClickListener to trigger results when pressed -->
+                <Button
+                    android:id="@+id/deny_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_alignParentStart="true"
+                    android:text="@string/deny_event_button"/>
+                <Button
+                    android:id="@+id/approve_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_alignParentEnd="true"
+                    android:text="@string/approve_event_button"/>
+            </RelativeLayout>
+        </LinearLayout>
+
+    </ScrollView>
 </LinearLayout>
