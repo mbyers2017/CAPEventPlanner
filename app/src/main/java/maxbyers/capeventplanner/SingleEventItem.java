@@ -41,6 +41,7 @@ public class SingleEventItem extends Activity {
         final TextView txtNumber = (TextView) findViewById(R.id.single_event_number);
         final Button rsvpButton = (Button) findViewById(R.id.rsvp_button);
         final Button emailButton = (Button) findViewById(R.id.email_button);
+        final Button deleteButton = (Button) findViewById(R.id.delete_button);
 
 
 
@@ -72,21 +73,20 @@ public class SingleEventItem extends Activity {
                     if (event.getUser().equals(user)) {
                         emailButton.setVisibility(View.VISIBLE);
                     }
-                    else {
-                        snapshot.getRef().getParent().getParent().child("users").child(user).child("authorized").addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot snapshot) {
-                                if (snapshot.exists() && ((Boolean) snapshot.getValue())) {
-                                    emailButton.setVisibility(View.VISIBLE);
-                                }
+                    snapshot.getRef().getParent().getParent().child("users").child(user).child("authorized").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot snapshot) {
+                            if (snapshot.exists() && ((Boolean) snapshot.getValue())) {
+                                emailButton.setVisibility(View.VISIBLE);
+                                deleteButton.setVisibility(View.VISIBLE);
                             }
+                        }
 
-                            @Override
-                            public void onCancelled(FirebaseError firebaseError) {
+                        @Override
+                        public void onCancelled(FirebaseError firebaseError) {
 
-                            }
-                        });
-                    }
+                        }
+                    });
                 }
             }
 
@@ -99,49 +99,49 @@ public class SingleEventItem extends Activity {
         rsvpButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-            if (user == null) {
-                Context context = getApplicationContext();
-                CharSequence text = "You must be logged in to sign up for this event!";
-                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-            } else {
-                ref.child("users").addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot snapshot) {
-                        if (snapshot.exists() && ((HashMap<String, String>) snapshot.getValue()).containsValue(user)) {
-                            Context context = getApplicationContext();
-                            CharSequence text = "You already signed up for this event!";
-                            Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                        } else {
-                            snapshot.getRef().push().setValue(user, new Firebase.CompletionListener() {
-                                @Override
-                                public void onComplete(FirebaseError firebaseError, Firebase firebase) {
-                                    if (firebaseError == null) {
-                                        firebase.getParent().addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(DataSnapshot snapshot) {
-                                                txtNumber.setText("Number of students attending: " + ((HashMap<String, String>) snapshot.getValue()).size());
-                                                Context context = getApplicationContext();
-                                                CharSequence text = "You successfully signed up for this event!";
-                                                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                                            }
+                if (user == null) {
+                    Context context = getApplicationContext();
+                    CharSequence text = "You must be logged in to sign up for this event!";
+                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                } else {
+                    ref.child("users").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot snapshot) {
+                            if (snapshot.exists() && ((HashMap<String, String>) snapshot.getValue()).containsValue(user)) {
+                                Context context = getApplicationContext();
+                                CharSequence text = "You already signed up for this event!";
+                                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                            } else {
+                                snapshot.getRef().push().setValue(user, new Firebase.CompletionListener() {
+                                    @Override
+                                    public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                                        if (firebaseError == null) {
+                                            firebase.getParent().addListenerForSingleValueEvent(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(DataSnapshot snapshot) {
+                                                    txtNumber.setText("Number of students attending: " + ((HashMap<String, String>) snapshot.getValue()).size());
+                                                    Context context = getApplicationContext();
+                                                    CharSequence text = "You successfully signed up for this event!";
+                                                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                                                }
 
-                                            @Override
-                                            public void onCancelled(FirebaseError firebaseError) {
+                                                @Override
+                                                public void onCancelled(FirebaseError firebaseError) {
 
-                                            }
-                                        });
+                                                }
+                                            });
+                                        }
                                     }
-                                }
-                            });
+                                });
+                            }
                         }
-                    }
 
-                    @Override
-                    public void onCancelled(FirebaseError firebaseError) {
+                        @Override
+                        public void onCancelled(FirebaseError firebaseError) {
 
-                    }
-                });
-            }
+                        }
+                    });
+                }
             }
         });
 
@@ -167,6 +167,33 @@ public class SingleEventItem extends Activity {
                             Context context = getApplicationContext();
                             CharSequence text = "All attendees' email addresses have been copied to the clipboard!";
                             Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+
+                    }
+                });
+            }
+        });
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        if (!snapshot.exists()) {
+                            Context context = getApplicationContext();
+                            CharSequence text = "This event has already been deleted!";
+                            Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                            finish();
+                        } else {
+                            snapshot.getRef().removeValue();
+                            Context context = getApplicationContext();
+                            CharSequence text = "Event deleted successfully!";
+                            Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                            finish();
                         }
                     }
 
