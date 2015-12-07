@@ -9,7 +9,9 @@ import android.support.test.runner.AndroidJUnit4;
 import android.support.test.runner.AndroidJUnitRunner;
 import android.test.ActivityInstrumentationTestCase2;
 
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Test;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
@@ -23,7 +25,6 @@ public class myTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
     public myTest() {
         super(MainActivity.class);
-        loginTest();
 
         onView(withId(R.id.event_name_edittext))       // withId(R.id.my_view) is a ViewMatcher
                 .perform(click())               // click() is a ViewAction
@@ -37,9 +38,14 @@ public class myTest extends ActivityInstrumentationTestCase2<MainActivity> {
         mActivity = getActivity();
     }
 
-    public void loginTest() {
+    public void testLogin() {
         onView(withId(R.id.login_button))       // withId(R.id.my_view) is a ViewMatcher
                 .perform(click())               // click() is a ViewAction
                 .check(matches(isDisplayed())); // matches(isDisplayed()) is a ViewAssertion
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        super.tearDown();
     }
 }
