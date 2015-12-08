@@ -2,7 +2,6 @@ package maxbyers.capeventplanner;
 
 import android.app.Activity;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
@@ -13,11 +12,9 @@ import android.app.ProgressDialog;
 import android.content.IntentSender;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
@@ -33,9 +30,7 @@ import com.firebase.client.AuthData;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
-import com.firebase.client.MutableData;
 import com.firebase.client.ServerValue;
-import com.firebase.client.Transaction;
 import com.firebase.client.ValueEventListener;
 import com.google.android.gms.auth.GoogleAuthException;
 import com.google.android.gms.auth.GoogleAuthUtil;
@@ -51,7 +46,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Map;
 import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -79,9 +73,6 @@ public class MainActivity extends Activity
 
     }
 
-    /**
-     * Comment....
-     */
     public static class FirebaseWrapper {
 
         private Firebase innerFirebaseRef;
@@ -298,11 +289,6 @@ public class MainActivity extends Activity
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
 
-    /**
-     * Used to store the last screen title. For use in {@link #restoreActionBar()}.
-     */
-    private CharSequence mTitle;
-
     private static FirebaseWrapper myFirebaseWrapper = new FirebaseWrapper();
 
     private static ContextWrapper myContextWrapper = new ContextWrapper();
@@ -321,7 +307,6 @@ public class MainActivity extends Activity
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mTitle = getTitle();
 
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
@@ -421,121 +406,9 @@ public class MainActivity extends Activity
                 .commit();
     }
 
-    public void onSectionAttached(int number) {
-        if (myGoogleWrapper.getApprovalVisible()) {
-            switch (number) {
-                case 1:
-                    mTitle = getString(R.string.title_section1);
-                    break;
-                case 2:
-                    mTitle = getString(R.string.title_section2);
-                    break;
-                case 3:
-                    mTitle = getString(R.string.title_section3);
-                    break;
-                case 4:
-                    mTitle = getString(R.string.title_section4);
-                    break;
-            }
-        }
-        else {
-            switch (number) {
-                case 1:
-                    mTitle = getString(R.string.title_section1);
-                    break;
-                case 2:
-                    mTitle = getString(R.string.title_section3);
-                    break;
-                case 3:
-                    mTitle = getString(R.string.title_section4);
-                    break;
-            }
-        }
-    }
-
-    public void restoreActionBar() {
-        ActionBar actionBar = getActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(mTitle);
-    }
-
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        /* If a user is currently authenticated, display a logout menu */
-        if (myGoogleWrapper.getMAuthData() != null) {
-            getMenuInflater().inflate(R.menu.main, menu);
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.action_logout) {
-            logout();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-
-    /*
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        if (!mNavigationDrawerFragment.isDrawerOpen()) {
-            // Only show items in the action bar relevant to this screen
-            // if the drawer is not showing. Otherwise, let the drawer
-            // decide what to show in the action bar.
-            getMenuInflater().inflate(R.menu.main, menu);
-            restoreActionBar();
-            return true;
-        }
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-    */
-
-
-
-
-
-    private void updateMarker() {
-        myFirebaseWrapper.getRef().child("marker").runTransaction(new Transaction.Handler() {
-            @Override
-            public Transaction.Result doTransaction(MutableData currentData) {
-                if(currentData.getValue() == null) {
-                    currentData.setValue(1);
-                } else {
-                    currentData.setValue((Long) currentData.getValue() + 1);
-                }
-                return Transaction.success(currentData); //we can also abort by calling Transaction.abort()
-
-            }
-
-            @Override
-            public void onComplete(FirebaseError firebaseError, boolean b, DataSnapshot dataSnapshot) {
-
-            }
-        });
+        return false;
     }
 
     /**
@@ -554,19 +427,6 @@ public class MainActivity extends Activity
                 Plus.AccountApi.clearDefaultAccount(myGoogleWrapper.getMGoogleApiClient());
                 myGoogleWrapper.getMGoogleApiClient().disconnect();
             }
-        }
-    }
-
-    /**
-     * This method will attempt to authenticate a user to firebase given an oauth_token (and other
-     * necessary parameters depending on the provider)
-     */
-    private void authWithFirebase(final String provider, Map<String, String> options) {
-        if (options.containsKey("error")) {
-            showErrorDialog(options.get("error"));
-        } else {
-            myGoogleWrapper.getMAuthProgressDialog().show();
-            myFirebaseWrapper.getRef().authWithOAuthToken(provider, options.get("oauth_token"), new AuthResultHandler(provider));
         }
     }
 
@@ -632,8 +492,6 @@ public class MainActivity extends Activity
         }
 
         myGoogleWrapper.setmAuthData(authData);
-        /* invalidate options menu to hide/show the logout button */
-        ActivityCompat.invalidateOptionsMenu(this);
     }
 
     /**
@@ -790,7 +648,7 @@ public class MainActivity extends Activity
 
     @Override
     public void onConnectionSuspended(int i) {
-        // ignore
+
     }
 
 
@@ -838,7 +696,7 @@ public class MainActivity extends Activity
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = null;
+            View rootView;
             if (this.getArguments().getInt(ARG_SECTION_NUMBER) == 1) {
                 rootView = getUpcomingEventsRootView(inflater, container);
             }
@@ -878,7 +736,7 @@ public class MainActivity extends Activity
                     snapshot.getRef().getParent().child("events").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot snapshot) {
-                            ArrayList<Event> events = new ArrayList<Event>();
+                            ArrayList<Event> events = new ArrayList<>();
                             for (DataSnapshot child : snapshot.getChildren()) {
                                 Event event = child.getValue(Event.class);
                                 if (event.getComplete() && event.getDisplay() && dateToInt(event.getDate()) >= dateToInt(formattedDate)) {
@@ -918,27 +776,42 @@ public class MainActivity extends Activity
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view,
                                         int position, long id) {
-                    String user = null;
+                String user = null;
 
-                    if (myGoogleWrapper.getMAuthData() != null) {
-                        final String email = Plus.AccountApi.getAccountName(myGoogleWrapper.getMGoogleApiClient());
-                        if (email.length() >= 10) {
-                            user = email.substring(0, email.length()-10);
+                if (myGoogleWrapper.getMAuthData() != null) {
+                    final String email = Plus.AccountApi.getAccountName(myGoogleWrapper.getMGoogleApiClient());
+                    if (email.length() >= 10) {
+                        user = email.substring(0, email.length()-10);
+                    }
+                }
+
+                final String firebaseUser = user;
+
+                // selected item
+                final String eventTitle = upcoming_adapter.getItem(position).getTitle();
+
+                myFirebaseWrapper.getRef().child("events").child(eventTitle).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        if (!snapshot.exists()) {
+                            Context context = myContextWrapper.getContext();
+                            CharSequence text = "This event has already been deleted!";
+                            Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                        } else {
+                            // Launching new Activity on selecting single List Item
+                            Intent i = new Intent(myContextWrapper.getContext(), SingleEventItem.class);
+                            // sending data to new activity
+                            i.putExtra("title", eventTitle);
+                            i.putExtra("user", firebaseUser);
+                            startActivity(i);
                         }
                     }
 
-                    // selected item
-                    String eventTitle = (String) upcoming_adapter.getItem(position).getTitle();
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
 
-
-                    //String event = ((TextView) view).getText().toString();
-
-                    // Launching new Activity on selecting single List Item
-                    Intent i = new Intent(myContextWrapper.getContext(), SingleEventItem.class);
-                    // sending data to new activity
-                    i.putExtra("title", eventTitle);
-                    i.putExtra("user", user);
-                    startActivity(i);
+                    }
+                });
                 }
             });
 
@@ -963,7 +836,7 @@ public class MainActivity extends Activity
                     snapshot.getRef().getParent().child("events").addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot snapshot) {
-                            ArrayList<Event> events = new ArrayList<Event>();
+                            ArrayList<Event> events = new ArrayList<>();
                             for (DataSnapshot child : snapshot.getChildren()) {
                                 Event event = child.getValue(Event.class);
                                 if (event.getComplete() && !event.getDisplay() && dateToInt(event.getDate()) >= dateToInt(formattedDate)) {
@@ -1004,50 +877,48 @@ public class MainActivity extends Activity
                 public void onItemClick(AdapterView<?> parent, View view,
                                         int position, long id) {
 
-                    // selected item
-                    final String eventTitle = (String) pending_adapter.getItem(position).getTitle();
+                // selected item
+                final String eventTitle = pending_adapter.getItem(position).getTitle();
 
-                    myFirebaseWrapper.getRef().child("events").child(eventTitle).child("display").addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot snapshot) {
-                            if ((Boolean) snapshot.getValue()) {
-                                Context context = myContextWrapper.getContext();
-                                CharSequence text = "This event has already been approved!";
-                                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                            }
-                            else {
-                                snapshot.getRef().getParent().child("date").addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(DataSnapshot snapshot) {
-                                        if (((String) snapshot.getValue()).equals("01/01/2000")) {
-                                            Context context = myContextWrapper.getContext();
-                                            CharSequence text = "This event has already been denied!";
-                                            Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                                        }
-                                        else {
-                                            //String event = ((TextView) view).getText().toString();
-
-                                            // Launching new Activity on selecting single List Item
-                                            Intent i = new Intent(myContextWrapper.getContext(), SinglePendingEventItem.class);
-                                            // sending data to new activity
-                                            i.putExtra("title", eventTitle);
-                                            startActivity(i);
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onCancelled(FirebaseError firebaseError) {
-
-                                    }
-                                });
-                            }
+                myFirebaseWrapper.getRef().child("events").child(eventTitle).child("display").addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot snapshot) {
+                        if ((Boolean) snapshot.getValue()) {
+                            Context context = myContextWrapper.getContext();
+                            CharSequence text = "This event has already been approved!";
+                            Toast.makeText(context, text, Toast.LENGTH_LONG).show();
                         }
+                        else {
+                            snapshot.getRef().getParent().child("date").addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(DataSnapshot snapshot) {
+                                    if (snapshot.getValue().equals("01/01/2000")) {
+                                        Context context = myContextWrapper.getContext();
+                                        CharSequence text = "This event has already been denied!";
+                                        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                                    }
+                                    else {
+                                        // Launching new Activity on selecting single List Item
+                                        Intent i = new Intent(myContextWrapper.getContext(), SinglePendingEventItem.class);
+                                        // sending data to new activity
+                                        i.putExtra("title", eventTitle);
+                                        startActivity(i);
+                                    }
+                                }
 
-                        @Override
-                        public void onCancelled(FirebaseError firebaseError) {
+                                @Override
+                                public void onCancelled(FirebaseError firebaseError) {
 
+                                }
+                            });
                         }
-                    });
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+
+                    }
+                });
                 }
             });
 
@@ -1062,128 +933,128 @@ public class MainActivity extends Activity
             submitButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    // Set global EditText variables to user inputs.
-                    getEditTextFields(rootView);
+                // Set global EditText variables to user inputs.
+                getEditTextFields(rootView);
 
-                    // Create variables to hold the strings entered into the text boxes.
-                    final String name = create_event_name.getText().toString();
-                    final String date = create_event_date.getText().toString();
-                    final String location = create_event_location.getText().toString();
-                    final String description = create_event_description.getText().toString();
-                    final String price = create_event_price.getText().toString();
-                    String user = null;
+                // Create variables to hold the strings entered into the text boxes.
+                final String name = create_event_name.getText().toString();
+                final String date = create_event_date.getText().toString();
+                final String location = create_event_location.getText().toString();
+                final String description = create_event_description.getText().toString();
+                final String price = create_event_price.getText().toString();
+                String user = null;
 
-                    if (myGoogleWrapper.getMAuthData() != null) {
-                        final String email = Plus.AccountApi.getAccountName(myGoogleWrapper.getMGoogleApiClient());
-                        if (email.length() >= 10) {
-                            user = email.substring(0, email.length()-10);
-                        }
+                if (myGoogleWrapper.getMAuthData() != null) {
+                    final String email = Plus.AccountApi.getAccountName(myGoogleWrapper.getMGoogleApiClient());
+                    if (email.length() >= 10) {
+                        user = email.substring(0, email.length()-10);
                     }
+                }
 
-                    final String firebaseUser = user;
+                final String firebaseUser = user;
 
-                    Matcher matcher1 = pattern1.matcher(price);
-                    Matcher matcher2 = pattern2.matcher(price);
-                    String match = null;
-                    if (matcher1.find()) {
-                        match = matcher1.group();
-                        match = match.replaceAll("\\$", "");
-                        match = match.replaceAll(",", "");
-                    }
-                    else if (matcher2.find()) {
-                        match = matcher2.group();
-                        match = match.replaceAll("\\$", "");
-                        match = match.replaceAll(",", "");
-                    }
+                Matcher matcher1 = pattern1.matcher(price);
+                Matcher matcher2 = pattern2.matcher(price);
+                String match = null;
+                if (matcher1.find()) {
+                    match = matcher1.group();
+                    match = match.replaceAll("\\$", "");
+                    match = match.replaceAll(",", "");
+                }
+                else if (matcher2.find()) {
+                    match = matcher2.group();
+                    match = match.replaceAll("\\$", "");
+                    match = match.replaceAll(",", "");
+                }
 
-                    final String firebaseMatch = match;
+                final String firebaseMatch = match;
 
-                    // Ensure event has a name or otherwise the child doesn't exist!
-                    if (name.equals("")){
-                        Context context = myContextWrapper.getContext();
-                        CharSequence text = "Your event must have a name!";
-                        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                    }
-                    else if (!name.matches("^[a-zA-Z0-9 ]*$")) {
-                        Context context = myContextWrapper.getContext();
-                        CharSequence text = "Your event name must contain only alphanumeric characters!";
-                        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                    }
-                    else {
-                        myFirebaseWrapper.getRef().child("events").child(name).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(DataSnapshot snapshot) {
-                                if (snapshot.exists()) {
+                // Ensure event has a name or otherwise the child doesn't exist!
+                if (name.equals("")){
+                    Context context = myContextWrapper.getContext();
+                    CharSequence text = "Your event must have a name!";
+                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                }
+                else if (!name.matches("^[a-zA-Z0-9 ]*$")) {
+                    Context context = myContextWrapper.getContext();
+                    CharSequence text = "Your event name must contain only alphanumeric characters!";
+                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                }
+                else {
+                    myFirebaseWrapper.getRef().child("events").child(name).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot snapshot) {
+                            if (snapshot.exists()) {
+                                Context context = myContextWrapper.getContext();
+                                CharSequence text = "An event with that name already exists!";
+                                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                            }
+                            else {
+                                if (!date.matches("^(1[0-2]|0[1-9])/(3[01]|[12][0-9]|0[1-9])/(19|20)[0-9]{2}$")) {
                                     Context context = myContextWrapper.getContext();
-                                    CharSequence text = "An event with that name already exists!";
+                                    CharSequence text = "Please enter a valid date in the correct format!";
+                                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                                }
+                                else if (location.equals("")){
+                                    Context context = myContextWrapper.getContext();
+                                    CharSequence text = "Your event must have a location!";
+                                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                                }
+                                else if (description.equals("")){
+                                    Context context = myContextWrapper.getContext();
+                                    CharSequence text = "Your event must have a description!";
+                                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                                }
+                                else if (firebaseMatch == null) {
+                                    Context context = myContextWrapper.getContext();
+                                    CharSequence text = "Please enter a valid price!";
+                                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+                                }
+                                else if (firebaseUser == null) {
+                                    Context context = myContextWrapper.getContext();
+                                    CharSequence text = "You must be logged in to create an event!";
                                     Toast.makeText(context, text, Toast.LENGTH_LONG).show();
                                 }
                                 else {
-                                    if (!date.matches("^(1[0-2]|0[1-9])/(3[01]|[12][0-9]|0[1-9])/(19|20)[0-9]{2}$")) {
-                                        Context context = myContextWrapper.getContext();
-                                        CharSequence text = "Please enter a valid date in the correct format!";
-                                        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                                    }
-                                    else if (location.equals("")){
-                                        Context context = myContextWrapper.getContext();
-                                        CharSequence text = "Your event must have a location!";
-                                        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                                    }
-                                    else if (description.equals("")){
-                                        Context context = myContextWrapper.getContext();
-                                        CharSequence text = "Your event must have a description!";
-                                        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                                    }
-                                    else if (firebaseMatch == null) {
-                                        Context context = myContextWrapper.getContext();
-                                        CharSequence text = "Please enter a valid price!";
-                                        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                                    }
-                                    else if (firebaseUser == null) {
-                                        Context context = myContextWrapper.getContext();
-                                        CharSequence text = "You must be logged in to create an event!";
-                                        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                                    }
-                                    else {
-                                        final Firebase timeRef = snapshot.getRef().getParent().getParent().child("time");
-                                        timeRef.setValue(ServerValue.TIMESTAMP);
-                                        timeRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(DataSnapshot snapshot) {
-                                                Date currentDate = new Date((Long) snapshot.getValue());
-                                                DateFormat format = new SimpleDateFormat("MM/dd/yyyy");
-                                                format.setTimeZone(TimeZone.getTimeZone("Etc/GMT+12"));
-                                                final String formattedDate = format.format(currentDate);
-                                                if (dateToInt(date) <= dateToInt(formattedDate)) {
-                                                    Context context = myContextWrapper.getContext();
-                                                    CharSequence text = "Please enter a valid date in the future!";
-                                                    Toast.makeText(context, text, Toast.LENGTH_LONG).show();
-                                                }
-                                                else { // Add event to database and inform user of success.
-                                                    Event newEvent = new Event(name, date, location, description,
-                                                            Double.parseDouble(firebaseMatch), false, firebaseUser, true, null);
-                                                    CharSequence success = "Your event was successfully created!";
-                                                    CharSequence failure = "Your event was not successfully created! Please try again.";
-                                                    setValueAndShowToast(snapshot.getRef().getParent().child("events").child(name), newEvent, success, failure);
-                                                    snapshot.getRef().getParent().child("users").child(firebaseUser).child("events").push().setValue(name);
-                                                }
+                                    final Firebase timeRef = snapshot.getRef().getParent().getParent().child("time");
+                                    timeRef.setValue(ServerValue.TIMESTAMP);
+                                    timeRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(DataSnapshot snapshot) {
+                                            Date currentDate = new Date((Long) snapshot.getValue());
+                                            DateFormat format = new SimpleDateFormat("MM/dd/yyyy");
+                                            format.setTimeZone(TimeZone.getTimeZone("Etc/GMT+12"));
+                                            final String formattedDate = format.format(currentDate);
+                                            if (dateToInt(date) <= dateToInt(formattedDate)) {
+                                                Context context = myContextWrapper.getContext();
+                                                CharSequence text = "Please enter a valid date in the future!";
+                                                Toast.makeText(context, text, Toast.LENGTH_LONG).show();
                                             }
-
-                                            @Override
-                                            public void onCancelled(FirebaseError firebaseError) {
-
+                                            else { // Add event to database and inform user of success.
+                                                Event newEvent = new Event(name, date, location, description,
+                                                        Double.parseDouble(firebaseMatch), false, firebaseUser, true, null);
+                                                CharSequence success = "Your event was successfully created!";
+                                                CharSequence failure = "Your event was not successfully created! Please try again.";
+                                                setValueAndShowToast(snapshot.getRef().getParent().child("events").child(name), newEvent, success, failure);
+                                                snapshot.getRef().getParent().child("users").child(firebaseUser).child("events").push().setValue(name);
                                             }
-                                        });
-                                    }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(FirebaseError firebaseError) {
+
+                                        }
+                                    });
                                 }
                             }
+                        }
 
-                            @Override
-                            public void onCancelled(FirebaseError firebaseError) {
+                        @Override
+                        public void onCancelled(FirebaseError firebaseError) {
 
-                            }
-                        });
-                    }
+                        }
+                    });
+                }
                 }
             });
             return rootView;
@@ -1194,7 +1065,7 @@ public class MainActivity extends Activity
 
             myGoogleWrapper.setLoginScreenReached(true);
 
-                /* Load the Google login button */
+            /* Load the Google login button */
             myGoogleWrapper.setMGoogleLoginButton((SignInButton) rootView.findViewById(R.id.login_button));
             myGoogleWrapper.getMGoogleLoginButton().setOnClickListener(myGoogleWrapper.getLoginClickListener());
             myGoogleWrapper.setMGoogleLogoutButton((Button) rootView.findViewById(R.id.logout_button));
@@ -1217,8 +1088,8 @@ public class MainActivity extends Activity
             if (size <= 1) {
                 return original;
             }
-            ArrayList<Event> first = new ArrayList<Event>();
-            ArrayList<Event> second = new ArrayList<Event>();
+            ArrayList<Event> first = new ArrayList<>();
+            ArrayList<Event> second = new ArrayList<>();
             for (int i = 0; i < size/2; i++) {
                 first.add(original.get(i));
             }
@@ -1229,7 +1100,7 @@ public class MainActivity extends Activity
         }
 
         private ArrayList<Event> merge(ArrayList<Event> first, ArrayList<Event> second, String criterion) {
-            ArrayList<Event> result = new ArrayList<Event>();
+            ArrayList<Event> result = new ArrayList<>();
             int i = 0;
             int j = 0;
             while (i < first.size() && j < second.size()) {
@@ -1292,13 +1163,6 @@ public class MainActivity extends Activity
             create_event_location = (EditText) rootView.findViewById(R.id.event_location_edittext);
             create_event_description = (EditText) rootView.findViewById(R.id.event_description_edittext);
             create_event_price = (EditText) rootView.findViewById(R.id.event_price_edittext);
-        }
-
-        @Override
-        public void onAttach(Activity activity) {
-            super.onAttach(activity);
-            ((MainActivity) activity).onSectionAttached(
-                    getArguments().getInt(ARG_SECTION_NUMBER));
         }
 
         @Override
